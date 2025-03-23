@@ -1,0 +1,212 @@
+/* AuthPage.css */
+.auth-container {
+  display: flex;
+  height: 100vh;
+  background: var(--primary-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 70% 20%, var(--space-purple) 0%, transparent 50%),
+    radial-gradient(circle at 30% 80%, var(--accent-blue) 0%, transparent 50%);
+  opacity: 0.1;
+  animation: cosmic-drift 40s linear infinite;
+}
+
+@keyframes cosmic-drift {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.auth-wrapper {
+  display: flex;
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  background: rgba(0, 5, 26, 0.8);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 163, 255, 0.1);
+  box-shadow: var(--neon-glow);
+  z-index: 1;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.auth-image {
+  width: 50%;
+  background: url('../../public/assets/img/about-2.jpg') no-repeat center/cover;
+  position: relative;
+  transition: var(--transition);
+}
+
+.auth-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(10, 25, 47, 0.7) 0%, rgba(0, 163, 255, 0.2) 100%);
+}
+
+.auth-form {
+  width: 50%;
+  padding: 3rem;
+  position: relative;
+}
+
+.auth-card {
+  background: transparent !important;
+  border: none !important;
+}
+
+.auth-title {
+  color: var(--accent-blue);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-shadow: var(--neon-glow);
+  letter-spacing: 0.5px;
+}
+
+.auth-subtext {
+  color: var(--text-light);
+  opacity: 0.8;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.form-control {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(0, 163, 255, 0.2) !important;
+  color: var(--text-light) !important;
+  transition: var(--transition) !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+}
+
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: var(--accent-blue) !important;
+  box-shadow: var(--neon-glow);
+}
+
+.form-control::placeholder {
+  color: rgba(240, 244, 252, 0.5) !important;
+}
+
+.auth-button {
+  background: var(--gradient-blue);
+  border: none;
+  padding: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+
+.auth-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neon-glow);
+}
+
+.google-login {
+  margin: 2rem 0;
+}
+
+.custom-google-button div {
+  margin: 0 auto !important;
+  transition: var(--transition) !important;
+}
+
+.auth-toggle {
+  color: var(--text-light);
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.auth-toggle span {
+  color: var(--accent-blue);
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+  font-weight: 600;
+}
+
+.auth-toggle span:hover {
+  color: var(--space-purple);
+}
+
+.auth-toggle span::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gradient-blue);
+  transition: var(--transition);
+}
+
+.auth-toggle span:hover::after {
+  width: 100%;
+}
+
+/* Toast Customization */
+.toast {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--accent-blue) !important;
+  backdrop-filter: blur(12px);
+  border-radius: 8px !important;
+}
+
+.toast-body {
+  color: var(--text-light);
+  position: relative;
+  padding-left: 2rem;
+  font-size: 0.9rem;
+}
+
+.toast-body::before {
+  content: '⚠️';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 992px) {
+  .auth-wrapper {
+    width: 95%;
+    flex-direction: column;
+  }
+
+  .auth-image,
+  .auth-form {
+    width: 100%;
+  }
+
+  .auth-image {
+    height: 200px;
+  }
+
+  .auth-form {
+    padding: 2rem;
+  }
+}

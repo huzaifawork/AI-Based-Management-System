@@ -1,0 +1,377 @@
+/* Modern Theme Variables */
+:root {
+  --primary-color: #6c5ce7;
+  --secondary-color: #a8a4e6;
+  --success-color: #00b894;
+  --warning-color: #fdcb6e;
+  --danger-color: #d63031;
+  --info-color: #0984e3;
+  --light-color: #f8f9fa;
+  --dark-color: #2d3436;
+  --border-color: #e1e8ed;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+/* Main Container */
+.admin-orders {
+  padding: 2rem;
+  background-color: var(--light-color);
+  min-height: 100vh;
+}
+
+/* Header Section */
+.header-section {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-content {
+  margin-bottom: 1.5rem;
+}
+
+.header-content h2 {
+  color: var(--dark-color);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #636e72;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.search-filter-section {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.search-box, .filter-box {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon, .filter-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #636e72;
+}
+
+.search-input, .filter-select {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  transition: var(--transition);
+}
+
+.search-input:focus, .filter-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+  outline: none;
+}
+
+/* Stats Cards */
+.stats-row {
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card .card-body {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  background: var(--primary-color);
+}
+
+.stat-icon.pending {
+  background: var(--warning-color);
+}
+
+.stat-icon.revenue {
+  background: var(--success-color);
+}
+
+.stat-icon.average {
+  background: var(--info-color);
+}
+
+.stat-content h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.stat-content p {
+  margin: 0;
+  color: #636e72;
+  font-size: 0.9rem;
+}
+
+/* Table Styles */
+.orders-table-container {
+  background: white;
+  border-radius: 15px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: var(--light-color);
+  border-bottom: 2px solid var(--border-color);
+  color: var(--dark-color);
+  font-weight: 600;
+  padding: 1rem;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  color: var(--dark-color);
+}
+
+.table tbody tr:hover {
+  background-color: rgba(108, 92, 231, 0.05);
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Order Info Styles */
+.order-id {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.customer-info, .items-count, .order-total, .order-date {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.customer-icon, .items-icon, .total-icon, .date-icon {
+  color: var(--primary-color);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.action-btn {
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.view-btn:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.confirm-btn:hover {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.prepare-btn:hover {
+  background-color: var(--info-color);
+  border-color: var(--info-color);
+  color: white;
+}
+
+.delivery-btn:hover {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.complete-btn:hover {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
+}
+
+/* Modal Styles */
+.order-details-modal .modal-content {
+  border-radius: 15px;
+  border: none;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem;
+}
+
+.modal-title-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-title-icon {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.detail-section {
+  background: var(--light-color);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.detail-section h5 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--dark-color);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.section-icon {
+  color: var(--primary-color);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-label {
+  color: #636e72;
+  font-size: 0.9rem;
+}
+
+.info-value {
+  color: var(--dark-color);
+  font-weight: 500;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .admin-orders {
+    padding: 1rem;
+  }
+
+  .header-section {
+    padding: 1rem;
+  }
+
+  .search-filter-section {
+    flex-direction: column;
+  }
+
+  .stats-row {
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    margin-bottom: 1rem;
+  }
+
+  .table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-section {
+    padding: 1rem;
+  }
+} 

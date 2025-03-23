@@ -1,0 +1,391 @@
+/* ========== 🌟 Modern Hotel Theme Variables ========== */
+:root {
+  /* Primary Colors */
+  --primary-bg: #0A192F;          /* Deep Navy Blue */
+  --secondary-bg: #112240;        /* Darker Navy */
+  --accent-primary: #64FFDA;      /* Bright Teal */
+  --accent-secondary: #8892B0;    /* Muted Blue-Gray */
+  --text-primary: #CCD6F6;        /* Bright White */
+  --text-secondary: #8892B0;      /* Muted Text */
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #64FFDA 0%, #00B4D8 100%);
+  --gradient-dark: linear-gradient(135deg, #112240 0%, #0A192F 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(17, 34, 64, 0.95) 0%, rgba(10, 25, 47, 0.95) 100%);
+  --gradient-text: linear-gradient(135deg, #64FFDA 0%, #00B4D8 100%);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(100, 255, 218, 0.3);
+  
+  /* Transitions */
+  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+
+  /* Typography */
+  --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+  --font-size-7xl: 4.5rem;
+  --font-size-8xl: 6rem;
+  --font-size-9xl: 8rem;
+  --font-size-10xl: 10rem;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+}
+
+/* ========== 🎨 Global Styles ========== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  line-height: var(--line-height-normal);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========== 🏗️ Layout Components ========== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.section {
+  padding: var(--spacing-xl) 0;
+}
+
+.section-title {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  margin-bottom: var(--spacing-xl);
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  line-height: var(--line-height-tight);
+}
+
+.section-subtitle {
+  font-size: var(--font-size-xl);
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ========== 🎯 Interactive Elements ========== */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: var(--font-size-base);
+  transition: var(--transition-normal);
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: var(--primary-bg);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-outline {
+  border: 2px solid var(--accent-primary);
+  color: var(--accent-primary);
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: rgba(100, 255, 218, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ========== 🎭 Cards & Containers ========== */
+.card {
+  background: var(--secondary-bg);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: var(--transition-normal);
+  border: 1px solid rgba(100, 255, 218, 0.1);
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
+}
+
+.card-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+}
+
+.card-text {
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ========== 🎨 Form Elements ========== */
+.form-control {
+  background: var(--secondary-bg);
+  border: 1px solid var(--accent-secondary);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  transition: var(--transition-normal);
+  font-size: var(--font-size-base);
+  width: 100%;
+}
+
+.form-control:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+  outline: none;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* ========== 🎭 Animations ========== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease forwards;
+}
+
+/* ========== 🎨 Glassmorphism Effects ========== */
+.glass {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(100, 255, 218, 0.1);
+  border-radius: var(--radius-lg);
+}
+
+/* ========== 📱 Responsive Design ========== */
+@media (max-width: 768px) {
+  .section {
+    padding: var(--spacing-lg) 0;
+  }
+  
+  .section-title {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .section-subtitle {
+    font-size: var(--font-size-lg);
+  }
+  
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+}
+
+/* ========== 🎨 Custom Scrollbar ========== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-secondary);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* ========== 🎨 Loading States ========== */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(100, 255, 218, 0.1),
+    transparent
+  );
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  to { left: 100%; }
+}
+
+/* ========== 🎨 Status Indicators ========== */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.status-success {
+  background: rgba(100, 255, 218, 0.1);
+  color: var(--accent-primary);
+}
+
+.status-warning {
+  background: rgba(255, 193, 7, 0.1);
+  color: #FFC107;
+}
+
+.status-error {
+  background: rgba(255, 87, 87, 0.1);
+  color: #FF5757;
+}
+
+/* ========== 🎨 Typography Utilities ========== */
+.text-gradient {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-accent {
+  color: var(--accent-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+/* ========== 🎨 Layout Utilities ========== */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* ========== 🎨 Grid System ========== */
+.grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-3, .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}

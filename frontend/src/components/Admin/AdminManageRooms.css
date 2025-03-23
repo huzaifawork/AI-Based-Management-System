@@ -1,0 +1,236 @@
+/* Cosmic Theme for AdminManageRooms Component */
+
+/* Container for the Admin Manage Rooms Page */
+.admin-manage-rooms {
+    background: white;
+    border-radius: 10px;
+    min-height: 400px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Page Title */
+.page-title {
+    font-size: 1.8rem;
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Add Room Button */
+.add-room-button {
+    font-weight: 600;
+    transition: var(--transition);
+    background: var(--gradient-blue);
+    border: none;
+    color: var(--text-light);
+}
+.add-room-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--neon-glow);
+}
+
+/* Form Card Styles */
+.room-form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--accent-blue);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 163, 255, 0.3);
+    padding: 2rem;
+    color: var(--text-light);
+}
+.form-title {
+    color: var(--accent-blue);
+    margin-bottom: 1.5rem;
+}
+
+/* Table Styles */
+.rooms-table {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 163, 255, 0.3);
+    color: var(--text-light);
+}
+.rooms-table th {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    font-weight: 600;
+}
+.rooms-table td {
+    vertical-align: middle;
+    border-color: rgba(0, 163, 255, 0.2);
+}
+
+/* Room Image */
+.room-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--accent-blue);
+}
+
+/* Modal Styles */
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--accent-blue);
+    color: var(--text-light);
+}
+.modal-header {
+    background: var(--primary-bg);
+    border-bottom: 1px solid var(--accent-blue);
+    color: var(--text-light);
+}
+.modal-title {
+    font-weight: 700;
+}
+.modal-footer {
+    background: var(--primary-bg);
+    border-top: 1px solid var(--accent-blue);
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cosmic-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.cosmic-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cosmic-card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.5rem;
+}
+
+.cosmic-card-body {
+    padding: 1.5rem;
+}
+
+.cosmic-table {
+    margin-top: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.cosmic-table th {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.cosmic-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.cosmic-table tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.cosmic-room-image {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.cosmic-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.cosmic-badge.available {
+    background-color: #28a745;
+    color: white;
+}
+
+.cosmic-badge.unavailable {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 0.2em;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #adb5bd;
+}
+
+.empty-state-text {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-subtext {
+    font-size: 0.9rem;
+    color: #868e96;
+}

@@ -1,0 +1,264 @@
+/* Rooms.css */
+.rooms-section {
+    padding: var(--spacing-xl) 0;
+    background: var(--gradient-dark);
+    position: relative;
+    overflow: hidden;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.section-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: var(--spacing-md);
+}
+
+.section-title {
+    font-size: var(--font-size-4xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    line-height: var(--line-height-tight);
+}
+
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md);
+}
+
+.room-card {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(100, 255, 218, 0.1);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: var(--transition-normal);
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-glow);
+}
+
+.room-image {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+}
+
+.room-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition-normal);
+}
+
+.room-card:hover .room-image img {
+    transform: scale(1.05);
+}
+
+.room-price {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    background: var(--gradient-primary);
+    color: var(--primary-bg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+}
+
+.room-content {
+    padding: var(--spacing-lg);
+}
+
+.room-title {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.room-description {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--spacing-lg);
+}
+
+.room-facilities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.facility-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.facility-icon {
+    color: var(--accent-primary);
+    font-size: var(--font-size-lg);
+}
+
+.room-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.action-button {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    transition: var(--transition-normal);
+}
+
+.primary-button {
+    background: var(--gradient-primary);
+    color: var(--primary-bg);
+}
+
+.primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.secondary-button {
+    background: transparent;
+    border: 1px solid var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.secondary-button:hover {
+    background: rgba(100, 255, 218, 0.1);
+    transform: translateY(-2px);
+}
+
+.skeleton-loader {
+    background: var(--gradient-glass);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.skeleton-image {
+    height: 250px;
+    background: linear-gradient(
+        90deg,
+        rgba(100, 255, 218, 0.1) 25%,
+        rgba(100, 255, 218, 0.2) 50%,
+        rgba(100, 255, 218, 0.1) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-content {
+    padding: var(--spacing-lg);
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 80%;
+    background: linear-gradient(
+        90deg,
+        rgba(100, 255, 218, 0.1) 25%,
+        rgba(100, 255, 218, 0.2) 50%,
+        rgba(100, 255, 218, 0.1) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: var(--spacing-md);
+    border-radius: var(--radius-sm);
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(100, 255, 218, 0.1) 25%,
+        rgba(100, 255, 218, 0.2) 50%,
+        rgba(100, 255, 218, 0.1) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+}
+
+.skeleton-text:last-child {
+    width: 70%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.error-alert {
+    background: var(--gradient-error);
+    color: var(--error-color);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    margin: var(--spacing-xl) auto;
+    max-width: 600px;
+}
+
+.error-icon {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.error-message {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.error-description {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+}
+
+@media (max-width: 768px) {
+    .section-title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .rooms-grid {
+        grid-template-columns: 1fr;
+        padding: var(--spacing-sm);
+    }
+
+    .room-actions {
+        flex-direction: column;
+    }
+
+    .action-button {
+        width: 100%;
+    }
+}

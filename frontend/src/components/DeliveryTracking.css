@@ -1,0 +1,110 @@
+/* DeliveryTracking.css */
+
+/* Card styling */
+.tracking-card {
+    border: none;
+    border-radius: 8px;
+  }
+  
+  /* Status container */
+  .status-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .status-indicator {
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    color: #333;
+  }
+  
+  /* Map container and placeholder */
+  .map-container {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  
+  .map-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Timeline base */
+  .timeline {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+  
+  .timeline:before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ddd;
+  }
+  
+  /* Timeline item styling */
+  .timeline-item {
+    position: relative;
+    padding-left: 50px;
+    margin-bottom: 20px;
+  }
+  
+  .timeline-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 36px;
+    font-size: 20px;
+    color: #777;
+  }
+  
+  .timeline-item.completed .timeline-icon {
+    background: #28a745;
+    border-color: #28a745;
+    color: #fff;
+  }
+  
+  .timeline-item.current .timeline-icon {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #fff;
+  }
+  
+  .timeline-content {
+    padding: 4px 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  
+  .timeline-extra {
+    font-size: 0.9rem;
+    color: #28a745;
+    margin-left: 4px;
+  }
+  
