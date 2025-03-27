@@ -75,6 +75,15 @@ const AdminAddRoom = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      console.log("Submitting room data:", {
+        roomNumber: formData.roomNumber,
+        roomType: formData.roomType,
+        price: formData.price,
+        status: formData.status,
+        description: formData.description,
+        hasImage: !!formData.image
+      });
+
       const response = await axios.post(
         "http://localhost:8080/api/rooms",
         submitData,
@@ -86,6 +95,7 @@ const AdminAddRoom = () => {
         }
       );
 
+      console.log("Server response:", response.data);
       toast.success("Room added successfully!");
       setFormData({
         roomNumber: "",
@@ -103,6 +113,8 @@ const AdminAddRoom = () => {
       }
     } catch (error) {
       console.error("Error adding room:", error);
+      console.error("Error response:", error.response?.data);
+      
       if (error.response?.status === 401 || error.response?.status === 403) {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
@@ -110,7 +122,9 @@ const AdminAddRoom = () => {
         navigate("/login");
         return;
       }
-      toast.error(error.response?.data?.message || "Failed to add room");
+      
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to add room";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

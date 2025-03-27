@@ -3,12 +3,43 @@ const mongoose = require('mongoose');
 
 // Define schema for tables
 const tableSchema = new mongoose.Schema({
-  tableName: { type: String, required: true },
-  tableType: { type: String, required: true },
-  capacity: { type: Number, required: true },
-  image: { type: String, required: false }, // Path to uploaded image
-  status: { type: String, default: 'Available' },
+  tableName: { 
+    type: String, 
+    required: true,
+    trim: true
+  },
+  tableType: { 
+    type: String, 
+    required: true,
+    enum: ['indoor', 'outdoor', 'private']
+  },
+  capacity: { 
+    type: Number, 
+    required: true,
+    min: 1
+  },
+  status: { 
+    type: String, 
+    required: true,
+    enum: ['Available', 'Booked', 'Reserved'],
+    default: 'Available'
+  },
+  image: { 
+    type: String,
+    required: false
+  },
+  description: {
+    type: String,
+    required: false,
+    trim: true
+  }
+}, {
+  timestamps: true
 });
+
+// Add index for faster queries
+tableSchema.index({ tableName: 1 });
+tableSchema.index({ status: 1 });
 
 // Create model from schema
 const Table = mongoose.model('Table', tableSchema);

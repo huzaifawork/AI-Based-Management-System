@@ -22,22 +22,20 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../Middlewares/uploadpic');
-const { addTable, getAllTables, updateTable, deleteTable } = require('../Controllers/tableController');
+const { ensureAuthenticated, ensureAdmin } = require('../Middlewares/auth');
+const {
+  addTable,
+  getAllTables,
+  updateTable,
+  deleteTable,
+} = require('../Controllers/tableController');
 
-// POST route to add a new table
-// router.post('/add', upload.single('image'), addTable);
-router.post('/add', upload.single('image'), (req, res) => {
-    console.log(req.file); // This should show the uploaded file details
-    addTable(req, res);
-  });
-
-// GET route to fetch all tables
+// Public routes
 router.get('/', getAllTables);
 
-// PUT route to update a table
-router.put('/:id', upload.single('image'), updateTable);
-
-// DELETE route to delete a table
-router.delete('/:id', deleteTable);
+// Admin routes
+router.post('/', ensureAuthenticated, ensureAdmin, upload.single('image'), addTable);
+router.put('/:id', ensureAuthenticated, ensureAdmin, upload.single('image'), updateTable);
+router.delete('/:id', ensureAuthenticated, ensureAdmin, deleteTable);
 
 module.exports = router;

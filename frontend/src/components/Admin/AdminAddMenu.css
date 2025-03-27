@@ -1,34 +1,206 @@
-.admin-add-menu {
-  padding: 2rem;
-  min-height: 100vh;
-  background-color: #f8f9fa;
+/* Modern Theme Variables */
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #f5f6fa;
+  --success-color: #2ecc71;
+  --danger-color: #e74c3c;
+  --text-color: #2c3e50;
+  --border-color: #dcdde1;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --transition-speed: 0.3s;
 }
 
-.form-card {
-  max-width: 800px;
+/* Container Styles */
+.admin-manage-menus {
+  padding: 2rem;
+  max-width: 1200px;
   margin: 0 auto;
+  background-color: var(--secondary-color);
+  min-height: 100vh;
+}
+
+/* Page Title */
+.page-title {
+  color: var(--text-color);
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+/* Card Styles */
+.cosmic-card {
+  background: white;
   border: none;
   border-radius: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: white;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
 }
 
-.form-card .card-header {
-  background-color: #fff;
-  border-bottom: 2px solid #f0f0f0;
-  padding: 1.5rem;
+.cosmic-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px var(--shadow-color);
+}
+
+.cosmic-card-header {
+  background: var(--primary-color);
+  color: white;
   border-radius: 15px 15px 0 0 !important;
+  padding: 1.5rem;
 }
 
-.form-card .card-header h2 {
+.cosmic-card-header h5 {
   margin: 0;
-  color: #2c3e50;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 600;
 }
 
-.form-card .card-body {
+.cosmic-card-body {
   padding: 2rem;
+}
+
+/* Form Styles */
+.form-label {
+  color: var(--text-color);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-control {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all var(--transition-speed);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  outline: none;
+}
+
+.form-select {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  outline: none;
+}
+
+/* Switch Styles */
+.form-check-input {
+  width: 3rem;
+  height: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.form-check-input:checked {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+/* Button Styles */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submit-btn, .cancel-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+}
+
+.submit-btn {
+  background-color: var(--success-color);
+  border: none;
+  color: white;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #27ae60;
+  transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-btn {
+  background-color: var(--secondary-color);
+  border: none;
+  color: var(--text-color);
+}
+
+.cancel-btn:hover {
+  background-color: #e4e6eb;
+  transform: translateY(-2px);
+}
+
+/* File Input Styles */
+.form-control[type="file"] {
+  padding: 0.5rem;
+  background-color: var(--secondary-color);
+}
+
+.form-text {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* Loading Spinner */
+.spinner-border {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-width: 0.2em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-manage-menus {
+    padding: 1rem;
+  }
+
+  .cosmic-card-body {
+    padding: 1.5rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .submit-btn, .cancel-btn {
+    width: 100%;
+  }
+}
+
+/* Form Group Spacing */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Error Message Styles */
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* Success Message Styles */
+.success-message {
+  color: var(--success-color);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
 
 .image-upload-section {
@@ -106,102 +278,8 @@
   background-color: #dc3545;
 }
 
-.form-label {
-  font-weight: 500;
-  color: #495057;
-  margin-bottom: 0.5rem;
-}
-
-.form-control {
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  padding: 0.75rem;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.form-control:focus {
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.form-select {
-  border: 1px solid #ced4da;
-  border-radius: 8px;
-  padding: 0.75rem;
-  background-color: white;
-  cursor: pointer;
-}
-
-.form-check {
-  margin-top: 1rem;
-}
-
-.button-group {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.submit-btn, .cancel-btn {
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.submit-btn {
-  background-color: #28a745;
-  border: none;
-}
-
-.submit-btn:hover {
-  background-color: #218838;
-  transform: translateY(-2px);
-}
-
-.submit-btn:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.cancel-btn {
-  background-color: #6c757d;
-  border: none;
-}
-
-.cancel-btn:hover {
-  background-color: #5a6268;
-  transform: translateY(-2px);
-}
-
 @media (max-width: 768px) {
-  .admin-add-menu {
-    padding: 1rem;
-  }
-
-  .form-card {
-    margin: 0;
-    border-radius: 10px;
-  }
-
-  .form-card .card-header {
-    padding: 1rem;
-  }
-
-  .form-card .card-body {
-    padding: 1.5rem;
-  }
-
   .image-preview-container {
     height: 200px;
-  }
-
-  .button-group {
-    flex-direction: column;
-  }
-
-  .submit-btn, .cancel-btn {
-    width: 100%;
   }
 } 

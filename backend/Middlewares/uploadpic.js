@@ -1,62 +1,41 @@
-// const multer = require('multer');
-// const path  = require('path');
-
-// //set storage engine
-// const storage = multer.diskStorage({
-//     destination: (req,file,cb)=>{
-//         cb(null,'uploads/');
-//     },
-//     filename: (req,file,cb)=>{
-//         cb(null, `${Date.now()}-${file.originalname}`);
-//         },
-// });
-
-// //file type validation
-// const fileFilter = (req, file, cb) => {
-//     const allowedTypes = ['image/jpeg','image/png','application/pdf'];
-//     if(allowedTypes.includes(file.mimetype)){
-//         cb(null, true);
-//         }
-//         else{
-//             cb(new Error('Only JPEG, PNG, or PDF files are allowed'), false);
-//         }
-//       };
-// //initializing multer
-// const upload = multer({
-//     storage,
-//     limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
-//     fileFilter,
-//   });
-  
-//   module.exports = upload;
-
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Set storage engine
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadsDir);
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
+        // Create a unique filename
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
     },
 });
 
 // File type validation
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Only JPEG, PNG, or PDF files are allowed'), false);
+        cb(new Error('Only JPEG, PNG, or GIF files are allowed'), false);
     }
 };
 
 // Initializing multer
 const upload = multer({
     storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+    limits: { 
+        fileSize: 5 * 1024 * 1024, // Limit file size to 5MB
+    },
     fileFilter,
 });
 

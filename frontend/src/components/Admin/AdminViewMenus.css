@@ -77,6 +77,7 @@
   position: relative;
   height: 200px;
   overflow: hidden;
+  background-color: #f8f9fa;
 }
 
 .menu-image {
@@ -90,6 +91,20 @@
   transform: scale(1.05);
 }
 
+.no-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #adb5bd;
+  gap: 0.5rem;
+}
+
+.no-image span {
+  font-size: 0.9rem;
+}
+
 .availability-badge {
   position: absolute;
   top: 1rem;
@@ -100,6 +115,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  z-index: 1;
 }
 
 .Card.Body {
@@ -150,10 +166,24 @@
   padding: 0.5rem;
   border-radius: 8px;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.action-buttons .btn svg {
+  font-size: 1.1rem;
 }
 
 .action-buttons .btn:hover {
   transform: translateY(-2px);
+}
+
+.action-buttons .btn-outline-primary {
+  color: #6c5ce7;
+  border-color: #6c5ce7;
 }
 
 .action-buttons .btn-outline-primary:hover {
@@ -162,10 +192,20 @@
   color: white;
 }
 
+.action-buttons .btn-outline-warning {
+  color: #fdcb6e;
+  border-color: #fdcb6e;
+}
+
 .action-buttons .btn-outline-warning:hover {
   background-color: #fdcb6e;
   border-color: #fdcb6e;
   color: #2d3436;
+}
+
+.action-buttons .btn-outline-danger {
+  color: #d63031;
+  border-color: #d63031;
 }
 
 .action-buttons .btn-outline-danger:hover {
@@ -218,5 +258,14 @@
 
   .menu-grid {
     grid-template-columns: 1fr;
+  }
+
+  .action-buttons .btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .action-buttons .btn svg {
+    font-size: 1rem;
   }
 } 

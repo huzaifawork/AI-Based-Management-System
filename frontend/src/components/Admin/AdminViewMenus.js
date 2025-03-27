@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Card, Badge, Button, Modal } from "react-bootstrap";
-import { FaEdit, FaTrash, FaToggleOn, FaToggleOff } from "react-icons/fa";
+import { FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaImage } from "react-icons/fa";
 import "./AdminViewMenus.css";
 
 const AdminViewMenus = () => {
@@ -54,9 +54,49 @@ const AdminViewMenus = () => {
   };
 
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return "https://via.placeholder.com/300";
-    if (imagePath.startsWith("http")) return imagePath;
-    return `http://localhost:8080${imagePath}`;
+    if (!imagePath) {
+      console.log('No image path provided');
+      return null;
+    }
+    
+    try {
+      // If it's already a full URL
+      if (imagePath.startsWith('http')) {
+        console.log('Using full URL:', imagePath);
+        return imagePath;
+      }
+      
+      // Remove any leading slashes
+      const cleanPath = imagePath.replace(/^\/+/, '');
+      console.log('Cleaned path:', cleanPath);
+      
+      // If the path includes 'uploads', make sure it's properly formatted
+      if (cleanPath.includes('uploads')) {
+        const url = `http://localhost:8080/${cleanPath}`;
+        console.log('Generated URL with uploads:', url);
+        return url;
+      }
+      
+      // For all other cases, assume it's a relative path in the uploads directory
+      const url = `http://localhost:8080/uploads/${cleanPath}`;
+      console.log('Generated URL:', url);
+      return url;
+    } catch (error) {
+      console.error('Error formatting image URL:', error);
+      return null;
+    }
+  };
+
+  // Add this function to handle image loading errors
+  const handleImageError = (e, item) => {
+    console.error('Image failed to load:', {
+      itemId: item._id,
+      itemName: item.name,
+      imagePath: item.image,
+      error: e
+    });
+    e.target.src = "https://via.placeholder.com/300";
+    e.target.onerror = null;
   };
 
   return (
@@ -89,14 +129,19 @@ const AdminViewMenus = () => {
           {menuItems.map((item) => (
             <Card key={item._id} className="menu-card">
               <div className="image-container">
-                <img
-                  src={getImageUrl(item.image)}
-                  alt={item.name}
-                  className="menu-image"
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/300";
-                  }}
-                />
+                {item.image ? (
+                  <img
+                    src={getImageUrl(item.image)}
+                    alt={item.name}
+                    className="menu-image"
+                    onError={(e) => handleImageError(e, item)}
+                  />
+                ) : (
+                  <div className="no-image">
+                    <FaImage size={40} />
+                    <span>No Image</span>
+                  </div>
+                )}
                 <Badge 
                   bg={item.availability ? "success" : "danger"}
                   className="availability-badge"
@@ -114,6 +159,7 @@ const AdminViewMenus = () => {
                     variant="outline-primary"
                     size="sm"
                     onClick={() => handleAvailabilityToggle(item._id, item.availability)}
+                    title={item.availability ? "Set Unavailable" : "Set Available"}
                   >
                     {item.availability ? <FaToggleOn /> : <FaToggleOff />}
                   </Button>
@@ -121,6 +167,7 @@ const AdminViewMenus = () => {
                     variant="outline-warning"
                     size="sm"
                     onClick={() => window.location.href = `/admin/update-menu/${item._id}`}
+                    title="Edit Item"
                   >
                     <FaEdit />
                   </Button>
@@ -131,6 +178,7 @@ const AdminViewMenus = () => {
                       setItemToDelete(item);
                       setShowDeleteModal(true);
                     }}
+                    title="Delete Item"
                   >
                     <FaTrash />
                   </Button>

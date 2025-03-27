@@ -2,6 +2,8 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
+const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 require("./Models/db");
 
@@ -28,6 +30,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // 📌 Import Routes
 const menuRoutes = require("./Routes/menuRoutes");
 const fileRoutes = require("./Routes/PicRoutes");
@@ -45,7 +53,7 @@ const userRoutes = require("./Routes/UserRoutes");
 const feedbackRoutes = require("./Routes/feedbackRoutes");
 
 // 📌 Serve Uploaded Files
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // 🔹 Register Routes
 app.use("/api/menus", menuRoutes);

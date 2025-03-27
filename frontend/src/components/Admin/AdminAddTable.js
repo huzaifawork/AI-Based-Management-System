@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Form, Button, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,55 +8,113 @@ import "./AdminManageTables.css";
 const AdminAddTable = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState(null);
   const [formData, setFormData] = useState({
     tableName: "",
     tableType: "",
     capacity: "",
     status: "Available",
+    description: "",
+    image: null,
   });
 
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    
+    if (!token || role !== "admin") {
+      toast.error("Please login as admin to access this page");
+      navigate("/login");
+      return;
+    }
+  }, [navigate]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleAddTable = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please upload a valid image file");
+        return;
+      }
+      if (file.size > 5000000) {
+        toast.error("Image size should not exceed 5MB");
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+    }
+  };
 
-    const data = new FormData();
-    data.append("tableName", formData.tableName);
-    data.append("tableType", formData.tableType);
-    data.append("capacity", formData.capacity);
-    data.append("status", formData.status);
-    if (image) {
-      data.append("image", image);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.tableName || !formData.tableType || !formData.capacity) {
+      toast.error("Please fill in all required fields");
+      return;
     }
 
+    const submitData = new FormData();
+    submitData.append("tableName", formData.tableName);
+    submitData.append("tableType", formData.tableType);
+    submitData.append("capacity", formData.capacity);
+    submitData.append("status", formData.status);
+    submitData.append("description", formData.description);
+    if (formData.image) {
+      submitData.append("image", formData.image);
+    }
+
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:8080/api/tables/add", data, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data" 
-        },
+      console.log("Submitting table data:", {
+        tableName: formData.tableName,
+        tableType: formData.tableType,
+        capacity: formData.capacity,
+        status: formData.status,
+        description: formData.description,
+        hasImage: !!formData.image
       });
-      
+
+      const response = await axios.post(
+        "http://localhost:8080/api/tables",
+        submitData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Server response:", response.data);
       toast.success("Table added successfully!");
       setFormData({
         tableName: "",
         tableType: "",
         capacity: "",
         status: "Available",
+        description: "",
+        image: null,
       });
-      setImage(null);
       
-      // Reset file input
-      const fileInput = document.getElementById("table-image");
-      if (fileInput) fileInput.value = "";
-      
+      // Reset the file input
+      const fileInput = document.querySelector('input[type="file"]');
+      if (fileInput) {
+        fileInput.value = "";
+      }
     } catch (error) {
       console.error("Error adding table:", error);
+      console.error("Error response:", error.response?.data);
+      
       if (error.response?.status === 401 || error.response?.status === 403) {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
@@ -64,7 +122,9 @@ const AdminAddTable = () => {
         navigate("/login");
         return;
       }
-      toast.error(error.response?.data?.message || "Failed to add table");
+      
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to add table";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -75,17 +135,18 @@ const AdminAddTable = () => {
       <h2 className="page-title mb-4">Add New Table</h2>
 
       <Card className="cosmic-card">
+        <Card.Header className="cosmic-card-header">
+          <h5 className="mb-0">Table Details</h5>
+        </Card.Header>
         <Card.Body className="cosmic-card-body">
-          <Form onSubmit={handleAddTable} encType="multipart/form-data">
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Table Name</Form.Label>
               <Form.Control
                 type="text"
-                className="cosmic-input"
+                name="tableName"
                 value={formData.tableName}
-                onChange={(e) =>
-                  setFormData({ ...formData, tableName: e.target.value })
-                }
+                onChange={handleInputChange}
                 placeholder="Enter table name (e.g., Family Table)"
                 required
               />
@@ -94,14 +155,12 @@ const AdminAddTable = () => {
             <Form.Group className="mb-3">
               <Form.Label>Table Type</Form.Label>
               <Form.Select
-                className="cosmic-input"
+                name="tableType"
                 value={formData.tableType}
-                onChange={(e) =>
-                  setFormData({ ...formData, tableType: e.target.value })
-                }
+                onChange={handleInputChange}
                 required
               >
-                <option value="">Choose...</option>
+                <option value="">Select table type</option>
                 <option value="indoor">Indoor</option>
                 <option value="outdoor">Outdoor</option>
                 <option value="private">Private</option>
@@ -112,12 +171,11 @@ const AdminAddTable = () => {
               <Form.Label>Capacity (Number of Guests)</Form.Label>
               <Form.Control
                 type="number"
-                className="cosmic-input"
+                name="capacity"
                 value={formData.capacity}
-                onChange={(e) =>
-                  setFormData({ ...formData, capacity: e.target.value })
-                }
+                onChange={handleInputChange}
                 placeholder="Enter maximum number of guests"
+                min="1"
                 required
               />
             </Form.Group>
@@ -125,11 +183,10 @@ const AdminAddTable = () => {
             <Form.Group className="mb-3">
               <Form.Label>Status</Form.Label>
               <Form.Select
-                className="cosmic-input"
+                name="status"
                 value={formData.status}
-                onChange={(e) =>
-                  setFormData({ ...formData, status: e.target.value })
-                }
+                onChange={handleInputChange}
+                required
               >
                 <option value="Available">Available</option>
                 <option value="Booked">Booked</option>
@@ -137,41 +194,52 @@ const AdminAddTable = () => {
               </Form.Select>
             </Form.Group>
 
-            <Form.Group className="mb-4">
-              <Form.Label>Upload Table Image</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
               <Form.Control
-                type="file"
-                className="cosmic-input"
-                id="table-image"
-                accept="image/jpeg, image/png"
-                onChange={handleImageChange}
-                required
+                as="textarea"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Enter table description (optional)"
+                rows={3}
               />
             </Form.Group>
 
-            <div className="text-center">
-              <Button
-                type="submit"
-                className="cosmic-btn-add"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"
-                    />
-                    Adding Table...
-                  </>
-                ) : (
-                  "Add Table"
-                )}
-              </Button>
-            </div>
+            <Form.Group className="mb-3">
+              <Form.Label>Table Image</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              <Form.Text className="text-muted">
+                Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
+              </Form.Text>
+            </Form.Group>
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={loading}
+              className="mt-3"
+            >
+              {loading ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Adding Table...
+                </>
+              ) : (
+                "Add Table"
+              )}
+            </Button>
           </Form>
         </Card.Body>
       </Card>

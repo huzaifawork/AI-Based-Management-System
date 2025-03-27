@@ -36,7 +36,7 @@ body {
 }
 .hero {
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
-  url("C:\Users\mhuza\Documents\backup21feb\backup21feb\frontend\public\images\card.webp") 
+  url("C:\Users\mhuza\Documents\backup21feb\frontend\public\images\card.webp") 
   no-repeat center center/cover;
   color: rgb(255, 255, 255);
   padding: 100px 20px;

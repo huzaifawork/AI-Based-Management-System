@@ -1,49 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Card, Form, Button, Spinner } from "react-bootstrap";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Form, Button, Card, Image } from "react-bootstrap";
-import { FaCloudUploadAlt, FaTimes } from "react-icons/fa";
 import "./AdminAddMenu.css";
 
 const AdminAddMenu = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
     category: "",
     availability: true,
+    image: null,
   });
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    
+    if (!token || role !== "admin") {
+      toast.error("Please login as admin to access this page");
+      navigate("/login");
+      return;
+    }
+  }, [navigate]);
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB");
-        return;
-      }
       if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file");
+        toast.error("Please upload a valid image file");
         return;
       }
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
+      if (file.size > 5000000) {
+        toast.error("Image size should not exceed 5MB");
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
     }
-  };
-
-  const handleRemoveImage = () => {
-    setImage(null);
-    setImagePreview(null);
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
   };
 
   const handleSubmit = async (e) => {
@@ -54,91 +62,94 @@ const AdminAddMenu = () => {
       return;
     }
 
+    const submitData = new FormData();
+    submitData.append("name", formData.name);
+    submitData.append("description", formData.description);
+    submitData.append("price", formData.price);
+    submitData.append("category", formData.category);
+    submitData.append("availability", formData.availability);
+    
+    if (formData.image) {
+      submitData.append("image", formData.image);
+    }
+
     setLoading(true);
     try {
-      const data = new FormData();
-      Object.keys(formData).forEach(key => {
-        data.append(key, formData[key]);
-      });
-      if (image) {
-        data.append("image", image);
-      }
-
-      const response = await axios.post("http://localhost:8080/api/menus", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const token = localStorage.getItem("token");
+      console.log("Submitting menu data:", {
+        name: formData.name,
+        description: formData.description,
+        price: formData.price,
+        category: formData.category,
+        availability: formData.availability,
+        hasImage: !!formData.image,
+        imageType: formData.image?.type,
+        imageSize: formData.image?.size
       });
 
-      toast.success("Menu item added successfully");
+      const response = await axios.post(
+        "http://localhost:8080/api/menus",
+        submitData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      console.log("Server response:", response.data);
+      toast.success("Menu item added successfully!");
       setFormData({
         name: "",
         description: "",
         price: "",
         category: "",
         availability: true,
+        image: null,
       });
-      setImage(null);
-      setImagePreview(null);
+      
+      // Reset the file input
+      const fileInput = document.querySelector('input[type="file"]');
+      if (fileInput) {
+        fileInput.value = "";
+      }
     } catch (error) {
-      toast.error("Error adding menu item");
+      console.error("Error adding menu item:", error);
+      console.error("Error response:", error.response?.data);
+      
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        toast.error("Session expired. Please login again.");
+        navigate("/login");
+        return;
+      }
+      
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to add menu item";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="admin-add-menu">
-      <Card className="form-card">
-        <Card.Header>
-          <h2>Add New Menu Item</h2>
-        </Card.Header>
-        <Card.Body>
-          <Form onSubmit={handleSubmit}>
-            <div className="image-upload-section">
-              <div className="image-preview-container">
-                {imagePreview ? (
-                  <div className="image-preview-wrapper">
-                    <Image
-                      src={imagePreview}
-                      alt="Preview"
-                      className="image-preview"
-                    />
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="remove-image-btn"
-                      onClick={handleRemoveImage}
-                    >
-                      <FaTimes />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="upload-placeholder">
-                    <FaCloudUploadAlt className="upload-icon" />
-                    <p>Upload Image</p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="file-input"
-                      id="image-upload"
-                    />
-                    <label htmlFor="image-upload" className="upload-label">
-                      Choose File
-                    </label>
-                  </div>
-                )}
-              </div>
-            </div>
+    <div className="admin-manage-menus p-4">
+      <h2 className="page-title mb-4">Add New Menu Item</h2>
 
+      <Card className="cosmic-card">
+        <Card.Header className="cosmic-card-header">
+          <h5 className="mb-0">Menu Item Details</h5>
+        </Card.Header>
+        <Card.Body className="cosmic-card-body">
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Item Name</Form.Label>
               <Form.Control
                 type="text"
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="Enter item name"
                 required
               />
@@ -148,22 +159,22 @@ const AdminAddMenu = () => {
               <Form.Label>Description</Form.Label>
               <Form.Control
                 as="textarea"
-                rows={3}
                 name="description"
                 value={formData.description}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="Enter item description"
+                rows={3}
                 required
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Price</Form.Label>
+              <Form.Label>Price ($)</Form.Label>
               <Form.Control
                 type="number"
                 name="price"
                 value={formData.price}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 placeholder="Enter price"
                 min="0"
                 step="0.01"
@@ -176,10 +187,10 @@ const AdminAddMenu = () => {
               <Form.Select
                 name="category"
                 value={formData.category}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               >
-                <option value="">Select Category</option>
+                <option value="">Select category</option>
                 <option value="appetizers">Appetizers</option>
                 <option value="main-course">Main Course</option>
                 <option value="desserts">Desserts</option>
@@ -193,8 +204,20 @@ const AdminAddMenu = () => {
                 name="availability"
                 label="Available"
                 checked={formData.availability}
-                onChange={handleChange}
+                onChange={handleInputChange}
               />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Item Image</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              <Form.Text className="text-muted">
+                Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
+              </Form.Text>
             </Form.Group>
 
             <div className="button-group">
@@ -204,12 +227,26 @@ const AdminAddMenu = () => {
                 disabled={loading}
                 className="submit-btn"
               >
-                {loading ? "Adding..." : "Add Menu Item"}
+                {loading ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                    Adding Item...
+                  </>
+                ) : (
+                  "Add Menu Item"
+                )}
               </Button>
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => window.location.href = "/admin/view-menus"}
+                onClick={() => navigate("/admin/view-menus")}
                 className="cancel-btn"
               >
                 Cancel
