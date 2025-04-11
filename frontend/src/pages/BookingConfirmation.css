@@ -1,0 +1,91 @@
+.booking-confirmation {
+  min-height: 100vh;
+}
+
+.confirmation-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.success-icon {
+  font-size: 4rem;
+  color: #4CAF50;
+  margin-bottom: 1rem;
+}
+
+.booking-details {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-item span:first-of-type {
+  flex: 1;
+  color: #fff;
+  opacity: 0.8;
+}
+
+.detail-item span:last-of-type {
+  color: #fff;
+  font-weight: 500;
+}
+
+.theme-button {
+  background: linear-gradient(45deg, #2196F3, #1976D2);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 25px;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.theme-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+}
+
+.theme-button-outline {
+  background: transparent;
+  border: 2px solid #2196F3;
+  padding: 0.75rem 2rem;
+  border-radius: 25px;
+  color: #2196F3;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.theme-button-outline:hover {
+  background: rgba(33, 150, 243, 0.1);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .confirmation-card {
+    padding: 2rem;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .detail-item span:first-of-type {
+    margin-bottom: 0.5rem;
+  }
+} 

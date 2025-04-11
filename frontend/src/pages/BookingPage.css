@@ -1,0 +1,332 @@
+.booking-page {
+  min-height: 100vh;
+  padding: 0;
+  margin: -50px 0 0 -20px;
+  background: #0A192F;
+}
+
+.booking-container {
+  display: grid;
+  grid-template-columns: 550px 1fr;
+  gap: 2.5rem;
+  max-width: 1400px;
+  margin: 0;
+  padding: 0;
+  background: #0A192F;
+}
+
+/* Room Details Card */
+.room-details-card {
+  background: #0A192F;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid #64FFDA;
+  height: fit-content;
+  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.1);
+  margin: 0;
+  transition: transform 0.3s ease;
+}
+
+.room-details-card:hover {
+  transform: translateY(-5px);
+}
+
+.room-image-container {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+}
+
+img.room-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.price-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #64FFDA 0%, #48A9A6 100%);
+  color: #0D192D;
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  z-index: 1;
+}
+
+.room-info {
+  padding: 1.5rem;
+}
+
+.room-title {
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
+}
+
+.room-rating {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.star-icon {
+  color: #64FFDA;
+  font-size: 1rem;
+}
+
+.room-description h3,
+.room-details-info h3,
+.booking-form-card h2 {
+  color: var(--accent-primary);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
+}
+
+.room-description p,
+.room-details-info ul {
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+  font-size: var(--font-size-base);
+}
+
+.room-details-info {
+  margin-top: var(--spacing-lg);
+}
+
+.room-details-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.room-details-info li {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Booking Form Card */
+.booking-form-card {
+  background: #0A192F;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 2rem;
+  border: 1px solid #64FFDA;
+  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.1);
+  margin: 0;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  color: #64FFDA;
+  margin-bottom: 0.5rem;
+  font-size: var(--font-size-base);
+  display: block;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #0A192F;
+  border: 1px solid #64FFDA;
+  border-radius: var(--radius-md);
+  color: #FFFFFF;
+  font-size: var(--font-size-base);
+  transition: var(--transition-normal);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #64FFDA;
+  box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.2);
+  background: #0A192F;
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder {
+  color: #64748B;
+}
+
+.booking-summary {
+  background: #0A192F;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border: 1px solid #64FFDA;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  color: #64FFDA;
+  font-size: var(--font-size-base);
+  border-bottom: 1px solid #64FFDA;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item.total {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #64FFDA;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.book-button {
+  width: 100%;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, #64FFDA 0%, #48A9A6 100%);
+  color: #0A192F;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  margin-top: var(--spacing-lg);
+}
+
+.book-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .booking-container {
+    grid-template-columns: 500px 1fr;
+    max-width: 1200px;
+    margin: 0;
+  }
+}
+
+@media (max-width: 1200px) {
+  .booking-container {
+    grid-template-columns: 1fr;
+    max-width: 800px;
+    margin: 0;
+  }
+
+  .room-details-card {
+    max-width: none;
+  }
+
+  .room-image-container {
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-page {
+    padding: 0;
+    margin: -50px 0 0 -10px;
+  }
+
+  .booking-container {
+    padding: 0;
+    gap: var(--spacing-lg);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-form-card {
+    padding: var(--spacing-lg);
+  }
+
+  .room-image-container {
+    height: 250px;
+  }
+
+  .room-info,
+  .booking-form-card {
+    padding: var(--spacing-lg);
+  }
+
+  .room-title,
+  .booking-form-card h2 {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@media (max-width: 576px) {
+  .booking-page {
+    padding: 1rem;
+  }
+
+  .room-image-container {
+    height: 300px;
+  }
+
+  .room-info,
+  .booking-form-card {
+    padding: 1.5rem;
+  }
+
+  .price-badge {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+body {
+  background: var(--primary-bg) !important;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  background: var(--primary-bg);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Override any bootstrap or other framework styles */
+.container {
+  background: #0A192F !important;
+}
+
+.main-content {
+  background: #0A192F !important;
+}
+
+/* Remove any glass effects */
+.glass,
+[class*="glass"] {
+  background: #0A192F !important;
+  backdrop-filter: none !important;
+} 

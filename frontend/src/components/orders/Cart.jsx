@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Button, Table, Form, Card } from "react-bootstrap";
+import { Button, Table, Form, Card, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { toast } from "react-toastify";
 import "./Cart.css";
 
 mapboxgl.accessToken = "pk.eyJ1IjoiaHV6YWlmYXQiLCJhIjoiY203bTQ4bW1oMGphYjJqc2F3czdweGp2MCJ9.w5qW_qWkNoPipYyb9MsWUw";
@@ -19,6 +20,9 @@ export default function Cart() {
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [map, setMap] = useState(null);
   const [marker, setMarker] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const mapContainer = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,11 +31,11 @@ export default function Cart() {
   }, []);
 
   useEffect(() => {
-    if (cart.length === 0) return;
+    if (!mapContainer.current || cart.length === 0) return;
 
     // Initialize map with Abbottabad coordinates
     const newMap = new mapboxgl.Map({
-      container: "map",
+      container: mapContainer.current,
       style: "mapbox://styles/mapbox/streets-v11",
       center: ABBOTTABAD_COORDS,
       zoom: 13,
@@ -49,41 +53,24 @@ export default function Cart() {
     const deliveryEl = document.createElement('div');
     deliveryEl.className = 'delivery-marker';
     deliveryEl.innerHTML = '📍';
-    const newMarker = new mapboxgl.Marker({ element: deliveryEl })
+    const newMarker = new mapboxgl.Marker({ element: deliveryEl, draggable: true })
       .setLngLat(ABBOTTABAD_COORDS)
       .addTo(newMap);
 
     // Add route line
     newMap.on('load', () => {
-      newMap.addSource('route', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: [RESTAURANT_COORDS, ABBOTTABAD_COORDS]
-          }
-        }
-      });
-
-      newMap.addLayer({
-        id: 'route',
-        type: 'line',
-        source: 'route',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-color': '#00a3ff',
-          'line-width': 3,
-        },
-      });
+      updateRoute(newMap, RESTAURANT_COORDS, ABBOTTABAD_COORDS);
     });
 
     // Add click handler
     newMap.on('click', handleMapClick);
+    newMarker.on('dragend', () => {
+      const newCoords = newMarker.getLngLat().toArray();
+      setCoordinates(newCoords);
+      updateAddressFromCoordinates(newCoords);
+      calculateDeliveryFee(newCoords);
+      updateRoute(newMap, RESTAURANT_COORDS, newCoords);
+    });
 
     setMap(newMap);
     setMarker(newMarker);
@@ -94,7 +81,55 @@ export default function Cart() {
     return () => {
       newMap.remove();
     };
-  }, [cart.length]); // Only re-run when cart length changes
+  }, [cart.length]);
+
+  const updateAddressFromCoordinates = async (coords) => {
+    try {
+      const response = await axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${coords[0]},${coords[1]}.json?access_token=${mapboxgl.accessToken}`
+      );
+      
+      if (response.data.features && response.data.features.length > 0) {
+        const address = response.data.features[0].place_name;
+        setDeliveryAddress(address);
+      }
+    } catch (error) {
+      console.error("Error getting address:", error);
+    }
+  };
+
+  const updateRoute = (map, start, end) => {
+    if (map.getSource('route')) {
+      map.removeLayer('route');
+      map.removeSource('route');
+    }
+
+    map.addSource('route', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: [start, end]
+        }
+      }
+    });
+
+    map.addLayer({
+      id: 'route',
+      type: 'line',
+      source: 'route',
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round',
+      },
+      paint: {
+        'line-color': '#00a3ff',
+        'line-width': 3,
+      },
+    });
+  };
 
   const calculateDeliveryFee = async (coords) => {
     try {
@@ -103,7 +138,8 @@ export default function Cart() {
       );
 
       const distance = response.data.routes[0].distance / 1000; // Convert to km
-      const fee = Math.max(2, Math.ceil(distance * 0.5)); // $0.5 per km, minimum $2
+      // Calculate fee: $2 base fee + $0.5 per km
+      const fee = Math.max(2, Math.ceil(2 + (distance * 0.5)));
       setDeliveryFee(fee);
     } catch (error) {
       console.error("Error calculating delivery fee:", error);
@@ -117,7 +153,9 @@ export default function Cart() {
     if (marker) {
       marker.setLngLat(newCoords);
     }
+    updateAddressFromCoordinates(newCoords);
     calculateDeliveryFee(newCoords);
+    updateRoute(map, RESTAURANT_COORDS, newCoords);
   };
 
   const handleRemoveItem = (index) => {
@@ -126,40 +164,46 @@ export default function Cart() {
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     window.dispatchEvent(new Event("cartUpdated"));
+    toast.success("Item removed from cart");
   };
 
   const handleCheckout = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("You must be logged in to place an order.");
+      toast.error("You must be logged in to place an order");
       navigate("/login");
       return;
     }
 
     if (cart.length === 0) {
-      alert("Your cart is empty!");
+      toast.error("Your cart is empty!");
       return;
     }
 
+    if (!deliveryAddress.trim()) {
+      toast.error("Please enter a delivery address");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const formattedItems = cart.map((item) => ({
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-      }));
-
-      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const totalPrice = subtotal + deliveryFee;
-
       const orderData = {
-        items: formattedItems,
-        totalPrice,
+        items: cart.map(item => ({
+          itemId: item._id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        totalPrice: cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + deliveryFee,
         deliveryFee,
         deliveryAddress,
         deliveryLocation: {
           type: "Point",
           coordinates: coordinates,
         },
+        status: "pending"
       };
 
       const response = await axios.post(
@@ -174,17 +218,18 @@ export default function Cart() {
       );
 
       if (response.status === 201) {
-        alert("Order placed successfully!");
+        toast.success("Order placed successfully!");
         localStorage.removeItem("cart");
         setCart([]);
         window.dispatchEvent(new Event("cartUpdated"));
-        navigate(`/invoice/${response.data.order._id}`);
-      } else {
-        throw new Error("Failed to place order");
+        navigate(`/invoice/${response.data._id}`);
       }
     } catch (error) {
       console.error("Error placing order:", error);
-      alert(error.response?.data?.message || "Failed to place order. Please try again.");
+      setError(error.response?.data?.message || "Failed to place order. Please try again.");
+      toast.error(error.response?.data?.message || "Failed to place order. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -192,7 +237,7 @@ export default function Cart() {
     <div className="cart-container container mt-4">
       <h2>My Cart</h2>
       {cart.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <Alert variant="info">Your cart is empty.</Alert>
       ) : (
         <>
           <div className="row">
@@ -200,9 +245,10 @@ export default function Cart() {
               <Table striped bordered hover variant="dark" className="cosmic-table">
                 <thead>
                   <tr>
-                    <th>Food Item</th>
+                    <th>Item</th>
                     <th>Price</th>
                     <th>Quantity</th>
+                    <th>Total</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -212,8 +258,13 @@ export default function Cart() {
                       <td>{item.name}</td>
                       <td>${item.price}</td>
                       <td>{item.quantity}</td>
+                      <td>${(item.price * item.quantity).toFixed(2)}</td>
                       <td>
-                        <Button variant="danger" onClick={() => handleRemoveItem(index)}>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleRemoveItem(index)}
+                        >
                           Remove
                         </Button>
                       </td>
@@ -226,20 +277,36 @@ export default function Cart() {
               <Card className="delivery-card">
                 <Card.Body>
                   <Card.Title>Delivery Details</Card.Title>
-                  <div id="map" style={{ height: "300px", marginBottom: "1rem" }} />
-                  <p className="text-muted">Click on the map to select delivery location</p>
+                  <div id="map" ref={mapContainer} style={{ height: "300px", marginBottom: "1rem" }} />
+                  <p className="text-muted">Click on the map or drag the marker to select delivery location</p>
                   <div className="fee-breakdown">
                     <p>Subtotal: ${cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}</p>
                     <p>Delivery Fee: ${deliveryFee.toFixed(2)}</p>
                     <h4>Total: ${(cart.reduce((sum, item) => sum + item.price * item.quantity, 0) + deliveryFee).toFixed(2)}</h4>
                   </div>
-                  <Button variant="success" onClick={handleCheckout} className="w-100">
-                    Place Order
+                  <Form.Group className="mb-3">
+                    <Form.Label>Delivery Address</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      placeholder="Enter delivery address"
+                    />
+                  </Form.Group>
+                  <Button 
+                    variant="success" 
+                    onClick={handleCheckout} 
+                    className="w-100"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Processing..." : "Place Order"}
                   </Button>
                 </Card.Body>
               </Card>
             </div>
           </div>
+
+          {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
         </>
       )}
     </div>

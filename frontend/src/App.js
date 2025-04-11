@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
-import { Home, Booking, AboutUs, Contact, PageNotFound, Room, Services, Team, Testimonial } from "./pages/index";
+import { Home, Booking, AboutUs, Contact, PageNotFound, Room, Services, Team, Testimonial, Help } from "./pages/index";
 import Header from "./components/common/Header";
 import Footer from "./components/Footer";
 import LoginPage from "./components/Login";
@@ -17,11 +17,17 @@ import AdminOrders from "./pages/AdminOrders";
 import DeliveryTracking from "./components/DeliveryTracking";
 import DeliveryTrackingPage from "./components/DeliveryTracking";
 import ReserveTable from "./pages/ReserveTable";
-import { ToastContainer } from "react-toastify"; // Import ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
-import "bootstrap/dist/css/bootstrap.min.css"; // Add Bootstrap CSS
+import TableReservationPage from "./pages/TableReservationPage";
+import TableConfirmationPage from "./pages/TableConfirmationPage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import Profile from "./components/Profile";
 import Feedback from "./components/User/Feedback";
+import "./styles/theme.css";
+import "./styles/global.css";
+import BookingPage from './pages/BookingPage';
+import BookingConfirmation from "./pages/BookingConfirmation";
 
 // Layout Component for Header and Footer
 const Layout = ({ children }) => {
@@ -30,19 +36,10 @@ const Layout = ({ children }) => {
   return (
     <>
       {!excludeHeaderFooter && <Header />}
-      {children}
+      <main className="main-content">
+        {children}
+      </main>
       {!excludeHeaderFooter && <Footer />}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000} // Close toast after 3 seconds
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
     </>
   );
 };
@@ -59,57 +56,55 @@ const AdminRoute = ({ children }) => {
   return role === "admin" ? children : <Navigate to="/" replace />;
 };
 
-export default function App() {
+function App() {
   return (
-    <Router>
-      <GoogleOAuthProvider clientId="985359243899-vgjcmnu5921lk7ginjn9lvkoqib7t5po.apps.googleusercontent.com">
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/testimonial" element={<Testimonial />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/*" element={<PageNotFound />} />
-            <Route path="/rooms" element={<Room />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/book-room" element={<BookRoom />} />
-            <Route path="/order-food" element={<OrderFood />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/my-orders" element={<MyOrders />} />
-            <Route path="/invoice/:orderId" element={<Invoice />} />
-            <Route path="/my-reservations" element={<MyReservations />} />
-            <Route path="/my-bookings" element={<MyBookings />} />
-            <Route path="/track-order/:orderId" element={<DeliveryTrackingPage />} />
-            <Route path="/reserve-table" element={<ReserveTable />} />
-            <Route path="/profile" element={<Profile />} />
-            
-            {/* Protected Feedback Route */}
-            <Route
-              path="/feedback"
-              element={
-                <AuthenticatedRoute>
-                  <Feedback />
-                </AuthenticatedRoute>
-              }
-            />
-
-            {/* Protected Admin Route */}
-            <Route
-              path="/dashboard"
-              element={
-                <AuthenticatedRoute>
-                  <AdminRoute>
-                    <Dashboard />
-                  </AdminRoute>
-                </AuthenticatedRoute>
-              }
-            />
-          </Routes>
-        </Layout>
-      </GoogleOAuthProvider>
-    </Router>
+    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout><Home /></Layout>} />
+          <Route path="/booking" element={<Layout><Booking /></Layout>} />
+          <Route path="/about" element={<Layout><AboutUs /></Layout>} />
+          <Route path="/contact" element={<Layout><Contact /></Layout>} />
+          <Route path="/rooms" element={<Layout><Room /></Layout>} />
+          <Route path="/services" element={<Layout><Services /></Layout>} />
+          <Route path="/team" element={<Layout><Team /></Layout>} />
+          <Route path="/testimonial" element={<Layout><Testimonial /></Layout>} />
+          <Route path="/help" element={<Layout><Help /></Layout>} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/book-room" element={<Layout><BookRoom /></Layout>} />
+          <Route path="/order-food" element={<Layout><OrderFood /></Layout>} />
+          <Route path="/cart" element={<Layout><Cart /></Layout>} />
+          <Route path="/my-orders" element={<Layout><MyOrders /></Layout>} />
+          <Route path="/invoice/:id" element={<Layout><Invoice /></Layout>} />
+          <Route path="/my-reservations" element={<Layout><MyReservations /></Layout>} />
+          <Route path="/my-bookings" element={<Layout><MyBookings /></Layout>} />
+          <Route path="/admin-orders" element={<Layout><AdminOrders /></Layout>} />
+          <Route path="/delivery-tracking" element={<Layout><DeliveryTrackingPage /></Layout>} />
+          <Route path="/reserve-table" element={<Layout><ReserveTable /></Layout>} />
+          <Route path="/table-reservation" element={<Layout><TableReservationPage /></Layout>} />
+          <Route path="/table-confirmation" element={<Layout><TableConfirmationPage /></Layout>} />
+          <Route path="/profile" element={<Layout><Profile /></Layout>} />
+          <Route path="/feedback" element={<Layout><Feedback /></Layout>} />
+          <Route path="/booking-page/:id" element={<Layout><BookingPage /></Layout>} />
+          <Route path="/booking-confirmation" element={<Layout><BookingConfirmation /></Layout>} />
+          <Route path="*" element={<Layout><PageNotFound /></Layout>} />
+        </Routes>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
+
+export default App;

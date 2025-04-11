@@ -1,6 +1,6 @@
 import React from "react";
-import { FiSend } from "react-icons/fi";
-import "./Newsletter.css"; // Create this CSS file
+import { FiMail } from "react-icons/fi";
+import "./NewsLetter.css"; // Create this CSS file
 
 export default function Newsletter() {
   return (
@@ -15,6 +15,7 @@ export default function Newsletter() {
             
             <form className="newsletter-form">
               <div className="input-wrapper">
+                <FiMail className="input-icon" />
                 <input
                   type="email"
                   className="modern-input"
@@ -22,7 +23,6 @@ export default function Newsletter() {
                   required
                 />
                 <button type="submit" className="submit-button">
-                  <FiSend className="button-icon" />
                   Subscribe
                 </button>
               </div>

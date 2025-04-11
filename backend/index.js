@@ -51,6 +51,7 @@ const orderRoutes = require("./Routes/orderRoutes");
 const reservationRoutes = require("./Routes/ReservationRoutes");
 const userRoutes = require("./Routes/UserRoutes");
 const feedbackRoutes = require("./Routes/feedbackRoutes");
+const adminRoutes = require('./Routes/AdminRoutes');
 
 // 📌 Serve Uploaded Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -70,6 +71,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/admin", adminRoutes);
 
 // 🚀 **Real-time Order Tracking with Socket.io**
 

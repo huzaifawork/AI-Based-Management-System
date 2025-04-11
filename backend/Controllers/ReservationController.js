@@ -3,11 +3,11 @@ const Reservation = require("../Models/Reservations");
 // Create a new reservation
 exports.createReservation = async (req, res) => {
   try {
-    const { tableId, tableNumber, reservationDate, guests, payment, totalPrice } = req.body;
+    const { tableId, tableNumber, reservationDate, time, guests, payment, totalPrice } = req.body;
     const userId = req.user._id; // Get the user ID from the authenticated request
 
     // Validate required fields
-    if (!tableId || !reservationDate || !guests || !payment || !totalPrice) {
+    if (!tableId || !reservationDate || !time || !guests || !payment || !totalPrice) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -20,6 +20,7 @@ exports.createReservation = async (req, res) => {
       tableId,
       tableNumber,
       reservationDate,
+      time,
       guests,
       payment,
       totalPrice,
@@ -39,8 +40,10 @@ exports.getReservationsByUser = async (req, res) => {
   try {
     const userId = req.user._id; // Get the user ID from the authenticated request
     const reservations = await Reservation.find({ userId }).populate("tableId");
+    console.log("Reservations from database:", JSON.stringify(reservations, null, 2)); // Debug log
     res.status(200).json(reservations);
   } catch (error) {
+    console.error("Error fetching reservations:", error);
     res.status(500).json({ error: "Error fetching reservations" });
   }
 };

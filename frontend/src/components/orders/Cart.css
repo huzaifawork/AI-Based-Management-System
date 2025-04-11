@@ -1,156 +1,158 @@
 .cart-container {
-    background: var(--card-bg);
-    border: 1px solid rgba(0, 163, 255, 0.2);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-top: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 163, 255, 0.2);
-    backdrop-filter: blur(8px);
-    color: var(--text-light);
-  }
-  
-  .cart-container h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-  }
-  
-  .cosmic-table {
-    background: transparent;
-    border: none;
-    color: var(--text-light);
-  }
-  
-  .cosmic-table thead th {
-    border-bottom: 2px solid var(--accent-blue);
-  }
-  
-  .cosmic-table tbody tr {
-    transition: var(--transition);
-  }
-  
-  .cosmic-table tbody tr:hover {
-    background: rgba(0, 163, 255, 0.1);
-  }
-  
-  .cosmic-table td,
-  .cosmic-table th {
-    border: none;
-  }
-  
-  .btn-danger {
-    background: rgba(255, 0, 0, 0.5);
-    border: 1px solid rgba(255, 0, 0, 0.7);
-    transition: var(--transition);
-  }
-  
-  .btn-danger:hover {
-    background: rgba(255, 0, 0, 0.7);
-  }
-  
-  .btn-success {
-    background: var(--gradient-blue);
-    border: none;
-    transition: var(--transition);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--neon-glow);
-  }
-  
-  .checkout-btn-wrapper {
-    text-align: right;
-    margin-top: 1.5rem;
-  }
-  
-  .delivery-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(0, 163, 255, 0.2);
-    border-radius: 12px;
-    backdrop-filter: blur(8px);
-    color: var(--text-light);
-  }
-  
-  .delivery-card .card-title {
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-  }
-  
-  .delivery-card .form-control {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--text-light);
-    transition: var(--transition);
-  }
-  
-  .delivery-card .form-control:focus {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--accent-blue);
-    color: var(--text-light);
-    box-shadow: 0 0 0 0.2rem rgba(0, 163, 255, 0.25);
-  }
-  
-  .delivery-card .form-label {
-    color: var(--text-light);
-    margin-bottom: 0.5rem;
-  }
-  
-  #map {
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid rgba(0, 163, 255, 0.2);
-    cursor: pointer;
-  }
-  
-  .restaurant-marker,
-  .delivery-marker {
-    font-size: 24px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-  }
-  
-  .restaurant-marker:hover,
-  .delivery-marker:hover {
-    transform: scale(1.2);
-  }
-  
-  .fee-breakdown {
-    background: rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  background: var(--gradient-dark);
+  min-height: 100vh;
+}
+
+.cosmic-table {
+  background: var(--card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 163, 255, 0.15);
+}
+
+.cosmic-table thead th {
+  background: var(--gradient-blue);
+  color: var(--text-light);
+  border: none;
+  padding: 1rem;
+  font-weight: 600;
+}
+
+.cosmic-table tbody td {
+  padding: 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 163, 255, 0.15);
+}
+
+.delivery-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 163, 255, 0.15);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.delivery-card .card-title {
+  color: var(--text-light);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+#map {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 163, 255, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.fee-breakdown {
+  background: rgba(0, 163, 255, 0.1);
+  padding: 1rem;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+
+.fee-breakdown p {
+  color: var(--text-light);
+  margin-bottom: 0.5rem;
+}
+
+.fee-breakdown h4 {
+  color: var(--accent-blue);
+  margin-top: 1rem;
+  font-weight: 700;
+}
+
+.form-control {
+  background: rgba(0, 163, 255, 0.1);
+  border: 1px solid rgba(0, 163, 255, 0.3);
+  color: var(--text-light);
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.form-control:focus {
+  background: rgba(0, 163, 255, 0.15);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0, 163, 255, 0.25);
+  color: var(--text-light);
+}
+
+.form-label {
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.btn-success {
+  background: var(--gradient-blue);
+  border: none;
+  padding: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-success:disabled {
+  background: rgba(0, 163, 255, 0.3);
+  cursor: not-allowed;
+}
+
+.restaurant-marker {
+  background: var(--accent-blue);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.delivery-marker {
+  background: #ff6b6b;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.alert {
+  border-radius: 12px;
+  border: none;
+  padding: 1rem;
+}
+
+.alert-danger {
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+}
+
+.alert-info {
+  background: rgba(0, 163, 255, 0.1);
+  color: var(--accent-blue);
+}
+
+@media (max-width: 768px) {
+  .cart-container {
     padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0;
   }
-  
-  .fee-breakdown p {
-    margin: 0.5rem 0;
-    color: var(--text-light);
+
+  .delivery-card {
+    margin-top: 2rem;
   }
-  
-  .fee-breakdown h4 {
-    color: var(--accent-blue);
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .text-muted {
-    color: rgba(255, 255, 255, 0.6) !important;
-    font-size: 0.9rem;
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    .cart-container {
-      padding: 1rem;
-    }
-    
-    .delivery-card {
-      margin-top: 1rem;
-    }
-  }
+}
   

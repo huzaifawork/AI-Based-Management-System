@@ -21,7 +21,7 @@ export const navList = [
     subItems: [
       {
         id: 41,
-        path: "/book-room",
+        path: "/booking-page",
         text: "Book Room",
       },
       {

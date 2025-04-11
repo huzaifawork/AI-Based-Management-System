@@ -87,6 +87,9 @@ export default function Header() {
                 {item.text}
               </Nav.Link>
             ))}
+            <Nav.Link as={Link} to="/help" className="nav-link">
+              Help
+            </Nav.Link>
             {userName && (
               <Nav.Link
                 as={Link}

@@ -1,92 +1,73 @@
-import { Link } from "react-router-dom";
-import { footerContact, footerItem, socialIcons } from "../data/Data";
-import Newsletter from "../home/Newsletter";
-import { FiFacebook, FiTwitter, FiInstagram, FiLinkedin, FiMapPin, FiPhone, FiMail } from "react-icons/fi";
-import "./Footer.css";
+import React from 'react';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import './Footer.css';
 
-export default function Footer() {
-  const currentYear = new Date().getFullYear();
-
+const Footer = () => {
   return (
     <footer className="footer-section">
-      <Newsletter />
-      
       <div className="container">
         <div className="footer-grid">
-          {/* Brand Column */}
           <div className="footer-brand">
-            <Link to="/" className="brand-link">
-              <span className="text-accent">HR</span>
-              <span className="text-light">MS</span>
-            </Link>
+            <a href="/" className="brand-link">Hotel Name</a>
             <p className="brand-description">
-              Transform your hotel's online presence with our cutting-edge 
-              management solutions and captivating web experiences.
+              Experience luxury and comfort at our premier hotel. Book your stay today and enjoy world-class amenities and services.
             </p>
           </div>
 
-          {/* Contact Column */}
           <div className="footer-contact">
             <h3 className="footer-title">Contact Us</h3>
             <ul className="contact-list">
-              {footerContact.map((item, index) => (
-                <li key={index} className="contact-item">
-                  {item.icon === "map" && <FiMapPin className="contact-icon" />}
-                  {item.icon === "phone" && <FiPhone className="contact-icon" />}
-                  {item.icon === "email" && <FiMail className="contact-icon" />}
-                  <span>{item.text}</span>
-                </li>
-              ))}
+              <li className="contact-item">
+                <FaPhone className="contact-icon" />
+                <span>+1 (555) 123-4567</span>
+              </li>
+              <li className="contact-item">
+                <FaEnvelope className="contact-icon" />
+                <span>info@hotelname.com</span>
+              </li>
+              <li className="contact-item">
+                <FaMapMarkerAlt className="contact-icon" />
+                <span>123 Hotel Street, City, Country</span>
+              </li>
             </ul>
           </div>
 
-          {/* Quick Links */}
           <div className="footer-links">
             <h3 className="footer-title">Quick Links</h3>
             <ul className="links-list">
-              {footerItem.map((item, index) => (
-                <li key={index}>
-                  <Link to={item.path} className="link-item">
-                    {item.text}
-                  </Link>
-                </li>
-              ))}
+              <li><a href="/" className="link-item">Home</a></li>
+              <li><a href="/rooms" className="link-item">Rooms</a></li>
+              <li><a href="/restaurant" className="link-item">Restaurant</a></li>
+              <li><a href="/amenities" className="link-item">Amenities</a></li>
+              <li><a href="/contact" className="link-item">Contact</a></li>
             </ul>
           </div>
 
-          {/* Social Links */}
           <div className="footer-social">
             <h3 className="footer-title">Follow Us</h3>
             <div className="social-icons">
-              {socialIcons.map((icon, index) => {
-                const IconComponent = {
-                  facebook: FiFacebook,
-                  twitter: FiTwitter,
-                  instagram: FiInstagram,
-                  linkedin: FiLinkedin,
-                }[icon.name];
-
-                return (
-                  <a
-                    key={index}
-                    href={icon.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="social-icon"
-                  >
-                    <IconComponent />
-                  </a>
-                );
-              })}
+              <a href="#" className="social-icon" aria-label="Facebook">
+                <FaFacebook />
+              </a>
+              <a href="#" className="social-icon" aria-label="Twitter">
+                <FaTwitter />
+              </a>
+              <a href="#" className="social-icon" aria-label="Instagram">
+                <FaInstagram />
+              </a>
+              <a href="#" className="social-icon" aria-label="LinkedIn">
+                <FaLinkedin />
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Copyright */}
         <div className="footer-bottom">
-          <p>&copy; {currentYear} HRMS. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Hotel Name. All rights reserved.</p>
         </div>
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

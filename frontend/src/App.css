@@ -1,3 +1,44 @@
+/* General Reset */
+body,
+ul,
+li,
+a {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main Content Wrapper */
+.main-content {
+  flex: 1;
+  padding-top: 80px; /* Space for fixed header */
+  min-height: calc(100vh - 160px); /* Account for header and footer */
+}
+
+/* Page Container */
+.page-container {
+  padding: 2rem 0;
+  min-height: calc(100vh - 160px);
+}
+
+/* Form Container */
+.form-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
 .navbar-dark .navbar-nav .nav-link:hover, .navbar-dark .navbar-nav .nav-link.active {
   color : #fea116;
 }
@@ -19,13 +60,6 @@
 }
 .bg-image {
   background-image: url('../public/assets/img/carousel-1.jpg');
-}
-
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  color: #333;
 }
 
 .app {

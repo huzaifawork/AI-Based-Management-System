@@ -1,0 +1,59 @@
+.help-container {
+  padding-top: 80px;
+  min-height: 100vh;
+}
+
+.help-container h1 {
+  color: #333;
+  font-weight: 600;
+}
+
+.help-container h2 {
+  color: #444;
+  font-weight: 500;
+}
+
+.help-container .card {
+  border: none;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.help-container .card:hover {
+  transform: translateY(-5px);
+}
+
+.help-container .card-title {
+  color: #333;
+  font-weight: 600;
+}
+
+.help-container a {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.help-container a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.help-container .accordion {
+  margin-bottom: 50px;
+}
+
+.help-container .accordion-button {
+  font-weight: 500;
+  color: #333;
+}
+
+.help-container .accordion-button:not(.collapsed) {
+  background-color: #f8f9fa;
+  color: #007bff;
+}
+
+.help-container .accordion-body {
+  color: #666;
+  line-height: 1.6;
+} 

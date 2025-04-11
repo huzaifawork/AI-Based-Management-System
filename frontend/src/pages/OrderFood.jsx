@@ -1,14 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Container, Row, Col } from "react-bootstrap";
-
-const menuItems = [
-    { id: 1, name: "Burger", price: 5.99 },
-    { id: 2, name: "Pizza", price: 8.99 },
-    { id: 3, name: "Pasta", price: 6.49 }
-];
+import axios from "axios";
+import { toast } from "react-toastify";
+import '../styles/theme.css';
 
 export default function OrderFood() {
+    const [menuItems, setMenuItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [cart, setCart] = useState([]);
+
+    useEffect(() => {
+        const fetchMenuItems = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/menus');
+                setMenuItems(response.data);
+                setLoading(false);
+            } catch (err) {
+                setError('Failed to load menu items');
+                setLoading(false);
+                toast.error('Failed to load menu items');
+                console.error('Error fetching menu items:', err);
+            }
+        };
+
+        fetchMenuItems();
+    }, []);
 
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -19,7 +36,7 @@ export default function OrderFood() {
         const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
         // Check if item already exists in cart
-        const itemIndex = existingCart.findIndex(cartItem => cartItem.id === item.id);
+        const itemIndex = existingCart.findIndex(cartItem => cartItem._id === item._id);
 
         if (itemIndex !== -1) {
             // If exists, increase quantity
@@ -32,20 +49,51 @@ export default function OrderFood() {
         // Update localStorage & state
         localStorage.setItem("cart", JSON.stringify(existingCart));
         setCart(existingCart);
-        window.dispatchEvent(new Event("storage")); // Ensure navbar updates
+        window.dispatchEvent(new Event("cartUpdated")); // Ensure navbar updates
+        toast.success(`${item.name} added to cart!`);
     };
 
+    if (loading) {
+        return (
+            <Container className="mt-5 menu-container">
+                <div className="loading-spinner">Loading menu items...</div>
+            </Container>
+        );
+    }
+
+    if (error) {
+        return (
+            <Container className="mt-5 menu-container">
+                <div className="error-message">{error}</div>
+            </Container>
+        );
+    }
+
     return (
-        <Container className="mt-4">
-            <h2>Menu</h2>
-            <Row>
+        <Container className="mt-5 menu-container">
+            <h2 className="page-title">Menu</h2>
+            <Row className="menu-items">
                 {menuItems.map(item => (
-                    <Col key={item.id} md={4} className="mb-3">
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>{item.name}</Card.Title>
-                                <Card.Text>${item.price}</Card.Text>
-                                <Button variant="primary" onClick={() => handleAddToCart(item)}>Add to Cart</Button>
+                    <Col key={item._id} md={4} className="mb-3">
+                        <Card className="menu-item">
+                            <Card.Body className="menu-item-content">
+                                {item.image && (
+                                    <img 
+                                        src={`http://localhost:8080${item.image}`} 
+                                        alt={item.name} 
+                                        className="menu-item-image"
+                                    />
+                                )}
+                                <Card.Title className="menu-item-title">{item.name}</Card.Title>
+                                <Card.Text className="menu-item-description">{item.description}</Card.Text>
+                                <Card.Text className="menu-item-price">${item.price}</Card.Text>
+                                <Button 
+                                    className="add-to-cart-button" 
+                                    onClick={() => handleAddToCart(item)}
+                                    disabled={!item.availability}
+                                >
+                                    {item.availability ? 'Add to Cart' : 'Unavailable'}
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>

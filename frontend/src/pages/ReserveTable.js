@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Container, Row, Col, Card, Button, Form, Modal } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
 import { FiCalendar, FiUsers, FiClock, FiX } from "react-icons/fi";
 import "./ReserveTable.css";
 
 const ReserveTable = () => {
+  const navigate = useNavigate();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedTable, setSelectedTable] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [reservationData, setReservationData] = useState({
     date: "",
     time: "",
@@ -31,40 +31,21 @@ const ReserveTable = () => {
     }
   };
 
-  const handleReservationSubmit = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login to make a reservation");
-        return;
-      }
-
-      const reservationDetails = {
-        tableId: selectedTable._id,
-        date: reservationData.date,
-        time: reservationData.time,
-        guests: reservationData.guests,
-      };
-
-      await axios.post("http://localhost:8080/api/reservations", reservationDetails, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      alert("Reservation successful!");
-      setShowModal(false);
-      setSelectedTable(null);
-      setReservationData({
-        date: "",
-        time: "",
-        guests: 1,
-      });
-    } catch (error) {
-      alert("Failed to make reservation. Please try again.");
-    }
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
+  const handleReserveClick = (table) => {
+    // Store the selected table and reservation data in localStorage
+    const reservationDetails = {
+      tableId: table._id,
+      tableName: table.tableName,
+      tableImage: table.image,
+      tableCapacity: table.capacity,
+      tableDescription: table.description,
+      date: reservationData.date,
+      time: reservationData.time,
+      guests: reservationData.guests,
+    };
+    
+    localStorage.setItem('reservationDetails', JSON.stringify(reservationDetails));
+    navigate('/table-reservation');
   };
 
   return (
@@ -153,10 +134,7 @@ const ReserveTable = () => {
                   <Button
                     variant="primary"
                     className="reserve-button"
-                    onClick={() => {
-                      setSelectedTable(table);
-                      setShowModal(true);
-                    }}
+                    onClick={() => handleReserveClick(table)}
                   >
                     Reserve Now
                   </Button>
@@ -165,46 +143,6 @@ const ReserveTable = () => {
             </Col>
           ))}
         </Row>
-
-        <Modal
-          show={showModal}
-          onHide={() => setShowModal(false)}
-          className="cosmic-modal"
-        >
-          <Modal.Header closeButton className="cosmic-modal-header">
-            <Modal.Title>Confirm Reservation</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="cosmic-modal-body">
-            {selectedTable && (
-              <div className="selected-table-info">
-                <h4 className="text-light">{selectedTable.tableName}</h4>
-                <p className="text-light">{selectedTable.description}</p>
-                <div className="reservation-summary">
-                  <div className="summary-item">
-                    <span className="text-light">Date:</span>
-                    <span className="text-light">{formatDate(reservationData.date)}</span>
-                  </div>
-                  <div className="summary-item">
-                    <span className="text-light">Time:</span>
-                    <span className="text-light">{reservationData.time}</span>
-                  </div>
-                  <div className="summary-item">
-                    <span className="text-light">Guests:</span>
-                    <span className="text-light">{reservationData.guests}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer className="cosmic-modal-footer">
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleReservationSubmit}>
-              Confirm Reservation
-            </Button>
-          </Modal.Footer>
-        </Modal>
       </Container>
     </div>
   );

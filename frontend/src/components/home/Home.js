@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <>
       <Carousel />
-      <Book />
+      {/* <Book /> */}
       <About />
       <Rooms />
       <TableReservation/>

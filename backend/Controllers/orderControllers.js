@@ -9,16 +9,20 @@ const io = socketIo(server);
 // ✅ Create Order (Logged-in users only)
 exports.createOrder = async (req, res) => {
   try {
-    const { items } = req.body;
+    const { items, totalPrice, deliveryFee, deliveryAddress, deliveryLocation } = req.body;
     const userId = req.user._id; // Get user ID from the authenticated request
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: "Order items must be a non-empty array" });
     }
 
+    if (!deliveryAddress || !deliveryLocation) {
+      return res.status(400).json({ message: "Delivery address and location are required" });
+    }
+
     for (const item of items) {
-      if (!item.quantity || !item.price) {
-        return res.status(400).json({ message: "Each item must have quantity and price" });
+      if (!item.quantity || !item.price || !item.name) {
+        return res.status(400).json({ message: "Each item must have name, quantity, and price" });
       }
       if (isNaN(item.quantity) || item.quantity <= 0) {
         return res.status(400).json({ message: "Quantity must be a positive number" });
@@ -28,13 +32,15 @@ exports.createOrder = async (req, res) => {
       }
     }
 
-    const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
     const newOrder = new Order({
-      user: userId, // Associate order with the logged-in user
+      user: userId,
       items,
       totalPrice,
+      deliveryFee,
+      deliveryAddress,
+      deliveryLocation,
       status: "pending",
+      deliveryStatus: "pending"
     });
 
     await newOrder.save();

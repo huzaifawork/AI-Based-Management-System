@@ -1,34 +1,47 @@
 import React, { useState, useEffect } from "react";
-import { fetchMenuItems } from "../../api/orders";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "./MenuList.css";
+import MenuItemModal from "./MenuItemModal";
 
 const MenuList = ({ addToCart }) => {
   const [menu, setMenu] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
-    const getMenu = async () => {
-      const data = await fetchMenuItems();
-      setMenu(data);
+    const fetchMenu = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/menu");
+        setMenu(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load menu items");
+        setLoading(false);
+        toast.error("Failed to load menu items");
+      }
     };
-    getMenu();
+
+    fetchMenu();
   }, []);
 
-  return (
-    <div>
-      <h2>Menu</h2>
-      <div className="menu-grid">
-        {menu.map((item) => (
-          <div key={item._id} className="menu-item">
-            <h3>{item.name}</h3>
-            <p>${item.price}</p>
-            <button onClick={() => addToCart(item)}>Add to Cart</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+  if (loading) {
+    return (
+      <section className="menu-section">
+        <div className="loading-spinner">Loading...</div>
+      </section>
+    );
+  }
 
-export default MenuList;
+  if (error) {
+    return (
+      <section className="menu-section">
+        <div className="error-message">{error}</div>
+      </section>
+    );
+  }
+
   return (
     <section className="menu-section">
       <div className="section-header">
@@ -76,5 +89,8 @@ export default MenuList;
       )}
     </section>
   );
+};
+
+export default MenuList;
 
 

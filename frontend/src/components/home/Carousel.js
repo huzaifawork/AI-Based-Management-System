@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { carouselData } from "../data/Data";
 import "./Carousel.css"; // Ensure this CSS file exists
+import { FiArrowRight } from 'react-icons/fi';
 
 export default function Carousel() {
   const sliderRef = useRef(null);
@@ -59,16 +60,16 @@ export default function Carousel() {
               <div className="gradient-overlay" />
             </div>
 
-            <div className="carousel-content">
+            <div className="carousel-content mt-5">
               <div className="carousel-caption">
                 <h6 className="carousel-subtitle">{val.subtitle}</h6>
                 <h1 className="carousel-title">{val.title}</h1>
                 <div className="carousel-buttons">
-                  <Link to="/book-room" className="carousel-btn primary">
-                    {val.btn1} {/* Book Room */}
+                  <Link to="/rooms" className="carousel-btn primary">
+                    {val.btn1} <FiArrowRight className="ms-2" />
                   </Link>
                   <Link to="/reserve-table" className="carousel-btn secondary">
-                    {val.btn2} {/* Reserve Table */}
+                    {val.btn2}
                   </Link>
                 </div>
               </div>

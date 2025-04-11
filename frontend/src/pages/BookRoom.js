@@ -1,231 +1,231 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Container, Row, Col, Card, Button, Form, Modal } from "react-bootstrap";
-import { FiCalendar, FiUsers, FiDollarSign, FiX } from "react-icons/fi";
-import "./BookRoom.css";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { FiCalendar, FiUsers, FiCreditCard, FiInfo } from 'react-icons/fi';
+import PageLayout from '../components/layout/PageLayout';
+import '../styles/theme.css';
 
 const BookRoom = () => {
-  const [rooms, setRooms] = useState([]);
+  const { roomId } = useParams();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [bookingData, setBookingData] = useState({
-    checkIn: "",
-    checkOut: "",
+  const [room, setRoom] = useState(null);
+  const [formData, setFormData] = useState({
+    checkIn: '',
+    checkOut: '',
     guests: 1,
+    name: '',
+    email: '',
+    phone: '',
+    specialRequests: ''
   });
 
   useEffect(() => {
-    fetchRooms();
-  }, []);
-
-  const fetchRooms = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/api/rooms");
-      setRooms(response.data);
-    } catch (error) {
-      setError("Failed to load rooms. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFilterChange = () => {
-    // Implement filter logic here
-  };
-
-  const calculateTotalPrice = () => {
-    if (!selectedRoom || !bookingData.checkIn || !bookingData.checkOut) return 0;
-    
-    const checkIn = new Date(bookingData.checkIn);
-    const checkOut = new Date(bookingData.checkOut);
-    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    
-    return selectedRoom.price * nights;
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  const handleBookingSubmit = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login to make a booking");
-        return;
+    // Fetch room details based on roomId
+    const fetchRoomDetails = async () => {
+      try {
+        // Add your API call here
+        setRoom({
+          id: roomId,
+          name: 'Deluxe Room',
+          price: 150,
+          description: 'Spacious room with city view and modern amenities',
+          image: '/images/room1.jpg'
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching room details:', error);
+        setLoading(false);
       }
+    };
 
-      const bookingDetails = {
-        roomId: selectedRoom._id,
-        checkIn: bookingData.checkIn,
-        checkOut: bookingData.checkOut,
-        guests: bookingData.guests,
-        totalPrice: calculateTotalPrice(),
-      };
+    fetchRoomDetails();
+  }, [roomId]);
 
-      await axios.post("http://localhost:8080/api/bookings", bookingDetails, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-      alert("Booking successful!");
-      setShowModal(false);
-      setSelectedRoom(null);
-      setBookingData({
-        checkIn: "",
-        checkOut: "",
-        guests: 1,
-      });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Add your booking API call here
+      console.log('Booking submitted:', { roomId, ...formData });
+      navigate('/booking-confirmation');
     } catch (error) {
-      alert("Failed to make booking. Please try again.");
+      console.error('Error submitting booking:', error);
     }
   };
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="loading-state">
+          <div className="loading-spinner" />
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (!room) {
+    return (
+      <PageLayout>
+        <div className="error-state">
+          <FiInfo className="error-icon" />
+          <h3>Room not found</h3>
+          <p>Please check the room ID and try again.</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
-    <div className="book-room-container">
-      <Container>
-        <div className="header">
-          <h1 className="cosmic-title">Book Your Stay</h1>
-          <p className="subtitle">Find the perfect room for your next adventure</p>
-        </div>
+    <PageLayout>
+      <div className="page-header animate-fade-in">
+        <h1 className="page-title">Book Your Stay</h1>
+        <p className="page-subtitle">
+          Complete your reservation for {room.name}
+        </p>
+      </div>
 
-        <div className="filters">
-          <Row>
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label className="text-light">Check-in Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  className="cosmic-input"
-                  value={bookingData.checkIn}
-                  onChange={(e) => setBookingData({ ...bookingData, checkIn: e.target.value })}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label className="text-light">Check-out Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  className="cosmic-input"
-                  value={bookingData.checkOut}
-                  onChange={(e) => setBookingData({ ...bookingData, checkOut: e.target.value })}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label className="text-light">Number of Guests</Form.Label>
-                <Form.Control
-                  type="number"
-                  className="cosmic-input"
-                  min="1"
-                  value={bookingData.guests}
-                  onChange={(e) => setBookingData({ ...bookingData, guests: e.target.value })}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-        </div>
-
-        {error && (
-          <div className="error-alert">
-            <FiX className="me-2" />
-            {error}
-          </div>
-        )}
-
-        <Row className="room-list">
-          {rooms.map((room) => (
-            <Col key={room._id} lg={4} md={6} className="mb-4">
-              <Card className="room-card">
-                <div className="room-image-container">
-                  <Card.Img
-                    variant="top"
-                    src={`http://localhost:8080/${room.image}`}
-                    alt={room.roomName}
-                    className="room-image"
-                  />
-                  <div className="price-badge">
-                    <FiDollarSign className="me-1" />
-                    {room.price}/night
-                  </div>
-                </div>
-                <Card.Body>
-                  <Card.Title className="room-title">{room.roomName}</Card.Title>
-                  <Card.Text className="room-description">{room.description}</Card.Text>
-                  <div className="room-features">
-                    <div className="feature">
-                      <FiUsers className="me-2" />
-                      <span>Max {room.capacity} guests</span>
-                    </div>
-                    <div className="feature">
-                      <FiCalendar className="me-2" />
-                      <span>Available</span>
-                    </div>
-                  </div>
-                  <Button
-                    variant="primary"
-                    className="book-button"
-                    onClick={() => {
-                      setSelectedRoom(room);
-                      setShowModal(true);
-                    }}
-                  >
-                    Book Now
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-
-        <Modal
-          show={showModal}
-          onHide={() => setShowModal(false)}
-          className="cosmic-modal"
-        >
-          <Modal.Header closeButton className="cosmic-modal-header">
-            <Modal.Title>Confirm Booking</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="cosmic-modal-body">
-            {selectedRoom && (
-              <div className="selected-room-info">
-                <h4 className="text-light">{selectedRoom.roomName}</h4>
-                <p className="text-light">{selectedRoom.description}</p>
-                <div className="booking-summary">
-                  <div className="summary-item">
-                    <span className="text-light">Check-in:</span>
-                    <span className="text-light">{formatDate(bookingData.checkIn)}</span>
-                  </div>
-                  <div className="summary-item">
-                    <span className="text-light">Check-out:</span>
-                    <span className="text-light">{formatDate(bookingData.checkOut)}</span>
-                  </div>
-                  <div className="summary-item">
-                    <span className="text-light">Guests:</span>
-                    <span className="text-light">{bookingData.guests}</span>
-                  </div>
-                  <div className="summary-item">
-                    <span className="text-light">Total Price:</span>
-                    <span className="total-price">${calculateTotalPrice()}</span>
-                  </div>
-                </div>
+      <div className="booking-container">
+        <div className="booking-content">
+          <div className="room-details">
+            <div className="room-image">
+              <img src={room.image} alt={room.name} />
+            </div>
+            <div className="room-info">
+              <h2>{room.name}</h2>
+              <p className="room-description">{room.description}</p>
+              <div className="room-price">
+                <span className="price-amount">${room.price}</span>
+                <span className="price-period">/night</span>
               </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer className="cosmic-modal-footer">
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleBookingSubmit}>
-              Confirm Booking
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </Container>
-    </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="booking-form">
+            <div className="form-group">
+              <label htmlFor="checkIn">
+                <FiCalendar />
+                Check-in Date
+              </label>
+              <input
+                type="date"
+                id="checkIn"
+                name="checkIn"
+                value={formData.checkIn}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="checkOut">
+                <FiCalendar />
+                Check-out Date
+              </label>
+              <input
+                type="date"
+                id="checkOut"
+                name="checkOut"
+                value={formData.checkOut}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="guests">
+                <FiUsers />
+                Number of Guests
+              </label>
+              <input
+                type="number"
+                id="guests"
+                name="guests"
+                min="1"
+                max="4"
+                value={formData.guests}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="name">Full Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="specialRequests">Special Requests</label>
+              <textarea
+                id="specialRequests"
+                name="specialRequests"
+                value={formData.specialRequests}
+                onChange={handleInputChange}
+                rows="4"
+              />
+            </div>
+
+            <div className="booking-summary">
+              <h3>Booking Summary</h3>
+              <div className="summary-item">
+                <span>Room Price</span>
+                <span>${room.price}/night</span>
+              </div>
+              <div className="summary-item">
+                <span>Number of Nights</span>
+                <span>Calculating...</span>
+              </div>
+              <div className="summary-item total">
+                <span>Total Amount</span>
+                <span>Calculating...</span>
+              </div>
+            </div>
+
+            <button type="submit" className="submit-button">
+              <FiCreditCard />
+              Complete Booking
+            </button>
+          </form>
+        </div>
+      </div>
+    </PageLayout>
   );
 };
 

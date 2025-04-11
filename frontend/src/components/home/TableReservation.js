@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Slider from "react-slick";
-import { FiChevronLeft, FiChevronRight, FiStar, FiUsers } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiStar, FiUsers, FiClock, FiMapPin, FiCalendar, FiInfo } from "react-icons/fi";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./FeaturedTables.css";
+import "./TableReservation.css";
 
 const FeaturedTables = () => {
   const [tables, setTables] = useState([]);
@@ -77,54 +78,84 @@ const FeaturedTables = () => {
     </div>
   );
 
-  return (
-    <section className="featured-tables">
-      <div className="container">
-        <h2 className="section-title">Featured Tables</h2>
+  if (error) {
+    return (
+      <div className="error-alert">
+        <FiInfo className="error-icon" />
+        <p>{error}</p>
+      </div>
+    );
+  }
 
-        {error ? (
-          <div className="error-message">{error}</div>
-        ) : loading ? (
-          <div className="tables-grid">
-            {[...Array(3)].map((_, index) => <SkeletonLoader key={index} />)}
-          </div>
-        ) : tables.length > 0 ? (
-          <Slider {...settings}>
-            {tables.map((table) => (
-              <div key={table._id} className="table-card-wrapper">
-                <div className="table-card">
-                  <div className="card-image">
-                    <img
-                      src={`http://localhost:8080${table.image}`}
-                      alt={table.tableName}
-                      loading="lazy"
-                    />
-                    <div className="price-badge">${table.price}/hour</div>
-                  </div>
-                  <div className="card-content">
-                    <h3 className="table-name">{table.tableName}</h3>
-                    <div className="table-meta">
-                      <div className="meta-item">
-                        <FiUsers className="meta-icon" />
-                        <span>{table.capacity} Guests</span>
-                      </div>
-                      <div className="meta-item">
-                        <FiStar className="meta-icon" />
-                        <span>{table.rating || 4.5}</span>
-                      </div>
-                    </div>
-                    <p className="table-description">{table.description}</p>
-                    <button className="book-button">
-                      Reserve Table
-                    </button>
-                  </div>
+  if (loading) {
+    return (
+      <div className="section">
+        <h2 className="section-title">Featured Tables</h2>
+        <div className="tables-grid">
+          {[...Array(3)].map((_, index) => (
+            <div key={index} className="card skeleton">
+              <div className="image-placeholder" />
+              <div className="content-placeholder">
+                <div className="title-placeholder" />
+                <div className="text-placeholder" />
+                <div className="text-placeholder" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (tables.length === 0) {
+    return (
+      <div className="section">
+        <h2 className="section-title">Featured Tables</h2>
+        <div className="no-tables">No tables available at the moment.</div>
+      </div>
+    );
+  }
+
+  return (
+    <section className="section">
+      <h2 className="section-title">Featured Tables</h2>
+      <div className="tables-grid">
+        {tables.map((table) => (
+          <div key={table._id} className="card">
+            <div className="card-image">
+              <img
+                src={`http://localhost:8080${table.image}`}
+                alt={table.tableName}
+                className="table-image"
+              />
+              <div className="price-badge">${table.price}/hour</div>
+            </div>
+            <div className="card-content">
+              <div className="table-header">
+                <h3 className="table-title">{table.tableName}</h3>
+                <div className="capacity">
+                  <FiUsers />
+                  <span>{table.capacity} seats</span>
                 </div>
               </div>
-            ))}
-          </Slider>
-        ) : (
-          <p className="no-tables">No tables available</p>
-        )}
+              <p className="table-description">{table.description}</p>
+              <div className="table-details">
+                <div className="detail-item">
+                  <FiMapPin />
+                  <span>{table.location}</span>
+                </div>
+                <div className="detail-item">
+                  <FiClock />
+                  <span>{table.availability}</span>
+                </div>
+              </div>
+              <div className="card-actions">
+                <button className="btn btn-primary">Reserve Now</button>
+                <button className="btn btn-outline">View Details</button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

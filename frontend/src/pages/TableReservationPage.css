@@ -1,0 +1,115 @@
+.reservation-page {
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.reservation-form {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  height: 100%;
+}
+
+.table-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.table-image-container img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.table-image-container:hover img {
+  transform: scale(1.05);
+}
+
+.table-details {
+  padding: 1.5rem;
+}
+
+.table-features {
+  margin-top: 1.5rem;
+}
+
+.feature-item {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+.theme-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.theme-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+  color: #fff;
+}
+
+.theme-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.reservation-summary {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-top: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.theme-button {
+  background: var(--accent-color);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.theme-button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+}
+
+@media (max-width: 768px) {
+  .reservation-form {
+    padding: 1.5rem;
+  }
+  
+  .table-image-container img {
+    height: 250px;
+  }
+  
+  .theme-input {
+    padding: 10px;
+  }
+  
+  .theme-button {
+    padding: 10px 20px;
+  }
+} 

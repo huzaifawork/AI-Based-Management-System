@@ -21,6 +21,10 @@ const userSchema = new Schema({
         enum: ['admin', 'user'],
         default: 'user',
     },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
     image: {
         type: String, // Store the image URL
         default: ''
