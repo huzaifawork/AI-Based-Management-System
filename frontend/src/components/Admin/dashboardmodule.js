@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Line, Bar, Pie } from "react-chartjs-2";
-import { FaBed, FaUtensils, FaComments, FaDollarSign } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Line, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,11 +9,12 @@ import {
   PointElement,
   LineElement,
   BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
+import { FaHotel, FaShoppingCart, FaComment, FaMoneyBillWave } from "react-icons/fa";
+import "./DashboardModule.css";
 
 ChartJS.register(
   CategoryScale,
@@ -21,57 +22,84 @@ ChartJS.register(
   PointElement,
   LineElement,
   BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend
 );
 
-const Dashboardmodule = () => {
+export default function Dashboardmodule() {
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [revenues, setRevenues] = useState([]);
+  const [feedbacks, setFeedbacks] = useState({});
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        // Fetch all rooms
-        const roomsRes = await axios.get("/api/rooms");
-        setRooms(roomsRes.data);
-      } catch (err) {
-        console.error("Error fetching rooms:", err);
-      }
+        setLoading(true);
+        const [roomsRes, ordersRes, feedbackRes, bookingsRes] = await Promise.all([
+          axios.get("http://localhost:8080/api/rooms", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("http://localhost:8080/api/orders", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("http://localhost:8080/api/feedback/analytics", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("http://localhost:8080/api/bookings", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-      try {
-        // Fetch all orders
-        const ordersRes = await axios.get("/api/orders");
-        setOrders(ordersRes.data);
+        setRooms(Array.isArray(roomsRes.data) ? roomsRes.data : []);
+        setOrders(Array.isArray(ordersRes.data?.orders) ? ordersRes.data.orders : []);
+        setFeedbacks(feedbackRes.data?.data || {});
+        setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching orders:", err);
-      }
-
-      try {
-        // Fetch all feedbacks
-        const feedbackRes = await axios.get("/api/feedbacks");
-        setFeedbacks(feedbackRes.data);
-      } catch (err) {
-        console.error("Error fetching feedbacks:", err);
-      }
-
-      try {
-        // Fetch all revenue records
-        const revenueRes = await axios.get("/api/revenue");
-        setRevenues(revenueRes.data);
-      } catch (err) {
-        console.error("Error fetching revenue:", err);
+        if (err.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+        } else {
+          setError("Failed to fetch dashboard data. Please try again.");
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
-  // Process Data
+  if (loading) {
+    return (
+      <div className="dash-loading-container">
+        <div className="dash-loading-spinner"></div>
+        <p>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dash-error-container">
+        <p className="dash-error-message">{error}</p>
+        <button className="dash-retry-button" onClick={() => window.location.reload()}>
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   const totalRooms = rooms.length;
   const occupiedRooms = rooms.filter((room) => room.status === "occupied").length;
   const availableRooms = totalRooms - occupiedRooms;
@@ -80,126 +108,139 @@ const Dashboardmodule = () => {
   const deliveredOrders = orders.filter((order) => order.status === "delivered").length;
   const pendingOrders = totalOrders - deliveredOrders;
 
-  const positiveFeedbacks = feedbacks.filter((fb) => fb.rating >= 4).length;
-  const neutralFeedbacks = feedbacks.filter((fb) => fb.rating === 3).length;
-  const negativeFeedbacks = feedbacks.filter((fb) => fb.rating < 3).length;
+  const totalFeedbacks = feedbacks.total || 0;
+  const positiveFeedbacks = feedbacks.positive || 0;
+  const negativeFeedbacks = feedbacks.negative || 0;
 
-  const lastMonthRevenue = revenues.length > 0 ? revenues[revenues.length - 1].amount : 0;
+  const totalRevenue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
 
-  // Chart Data
-  const lineChartData = {
-    labels: revenues.map((entry) => entry.month),
+  const chartData = {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
     datasets: [
       {
         label: "Revenue",
-        data: revenues.map((entry) => entry.amount),
-        borderColor: "rgba(54, 162, 235, 1)",
-        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        data: [12000, 19000, 15000, 25000, 22000, 30000],
+        borderColor: "rgba(0, 163, 255, 1)",
+        backgroundColor: "rgba(0, 163, 255, 0.1)",
         tension: 0.4,
+        fill: true,
       },
     ],
   };
 
-  const barChartData = {
-    labels: ["Rooms Occupied", "Orders Processed", "Customer Feedback"],
-    datasets: [
-      {
-        label: "Activity Summary",
-        data: [occupiedRooms, totalOrders, feedbacks.length],
-        backgroundColor: ["#4caf50", "#2196f3", "#ff9800"],
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          color: "rgba(240, 244, 252, 0.7)",
+        },
       },
-    ],
-  };
-
-  const pieChartData = {
-    labels: ["Positive", "Neutral", "Negative"],
-    datasets: [
-      {
-        label: "Customer Feedback",
-        data: [positiveFeedbacks, neutralFeedbacks, negativeFeedbacks],
-        backgroundColor: ["#4caf50", "#ffeb3b", "#f44336"],
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: "rgba(240, 244, 252, 0.1)",
+        },
+        ticks: {
+          color: "rgba(240, 244, 252, 0.7)",
+        },
       },
-    ],
+      x: {
+        grid: {
+          color: "rgba(240, 244, 252, 0.1)",
+        },
+        ticks: {
+          color: "rgba(240, 244, 252, 0.7)",
+        },
+      },
+    },
   };
 
   return (
-    <div className="container mt-3">
-      {/* Metrics Overview */}
-      <div className="row mb-4 text-center">
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <FaBed size={28} className="text-primary mb-2" />
-              <h6>Total Rooms</h6>
-              <p className="h5 text-primary">{totalRooms}</p>
-              <small>Occupied: {occupiedRooms} | Available: {availableRooms}</small>
-            </div>
+    <div className="dash-module-container">
+      <div className="dash-module-header">
+        <h1 className="dash-module-title">Dashboard Overview</h1>
+        <p className="dash-module-subtitle">Welcome to your hotel management dashboard</p>
+      </div>
+
+      <div className="dash-metrics-grid">
+        <div className="dash-metric-card">
+          <div className="dash-metric-title">
+            <FaHotel className="me-2" />
+            Total Rooms
+          </div>
+          <div className="dash-metric-value">{totalRooms}</div>
+          <div className="dash-metric-change">
+            <span className="dash-status-available">Available: {availableRooms}</span>
+            <span className="dash-status-occupied">Occupied: {occupiedRooms}</span>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <FaUtensils size={28} className="text-success mb-2" />
-              <h6>Orders</h6>
-              <p className="h5 text-success">{totalOrders}</p>
-              <small>Delivered: {deliveredOrders} | Pending: {pendingOrders}</small>
-            </div>
+
+        <div className="dash-metric-card">
+          <div className="dash-metric-title">
+            <FaShoppingCart className="me-2" />
+            Total Orders
+          </div>
+          <div className="dash-metric-value">{totalOrders}</div>
+          <div className="dash-metric-change">
+            <span className="dash-status-delivered">Delivered: {deliveredOrders}</span>
+            <span className="dash-status-pending">Pending: {pendingOrders}</span>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <FaComments size={28} className="text-warning mb-2" />
-              <h6>Customer Feedback</h6>
-              <p className="h5 text-warning">{feedbacks.length}</p>
-              <small>Positive: {positiveFeedbacks}</small>
-            </div>
+
+        <div className="dash-metric-card">
+          <div className="dash-metric-title">
+            <FaComment className="me-2" />
+            Total Feedbacks
+          </div>
+          <div className="dash-metric-value">{totalFeedbacks}</div>
+          <div className="dash-metric-change">
+            <span className="dash-status-delivered">Positive: {positiveFeedbacks}</span>
+            <span className="dash-status-occupied">Negative: {negativeFeedbacks}</span>
           </div>
         </div>
-        <div className="col-md-3 col-sm-6 mb-3">
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <FaDollarSign size={28} className="text-danger mb-2" />
-              <h6>Monthly Revenue</h6>
-              <p className="h5 text-danger">${lastMonthRevenue}</p>
-            </div>
+
+        <div className="dash-metric-card">
+          <div className="dash-metric-title">
+            <FaMoneyBillWave className="me-2" />
+            Total Revenue
           </div>
+          <div className="dash-metric-value">${totalRevenue.toLocaleString()}</div>
+          <div className="dash-metric-change positive">+12% from last month</div>
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <h6>Monthly Revenue Trends</h6>
-              <Line data={lineChartData} />
-            </div>
-          </div>
+      <div className="dash-charts-grid">
+        <div className="dash-chart-card">
+          <h3 className="dash-chart-title">Revenue Trend</h3>
+          <Line data={chartData} options={chartOptions} />
         </div>
-        <div className="col-md-6">
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <h6>Activity Summary</h6>
-              <Bar data={barChartData} />
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Feedback Sentiment */}
-      <div className="row">
-        <div className="col-md-6 mb-4">
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <h6>Feedback Sentiment Analysis</h6>
-              <Pie data={pieChartData} />
-            </div>
-          </div>
+        <div className="dash-chart-card">
+          <h3 className="dash-chart-title">Room Occupancy</h3>
+          <Bar
+            data={{
+              labels: ["Occupied", "Available"],
+              datasets: [
+                {
+                  label: "Rooms",
+                  data: [occupiedRooms, availableRooms],
+                  backgroundColor: ["rgba(255, 77, 77, 0.5)", "rgba(0, 255, 157, 0.5)"],
+                  borderColor: ["rgba(255, 77, 77, 1)", "rgba(0, 255, 157, 1)"],
+                  borderWidth: 1,
+                },
+              ],
+            }}
+            options={chartOptions}
+          />
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default Dashboardmodule;
+
+

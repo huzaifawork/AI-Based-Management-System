@@ -186,9 +186,21 @@ exports.updateOrderStatus = async (req, res) => {
     order.status = status;
     await order.save();
 
+    // Get socket.io instance
+    const io = require('../socket').getIO();
+
     // Emit socket event for real-time updates
     if (io) {
-      io.emit("orderStatusUpdated", { orderId: order._id, status });
+      const statusUpdate = {
+        orderId: order._id,
+        status: status,
+        timestamp: new Date(),
+        estimatedDelivery: new Date(Date.now() + 30 * 60000), // 30 minutes from now
+        completed: true
+      };
+      
+      io.to(`order_${orderId}`).emit('orderUpdate', statusUpdate);
+      console.log(`[Socket] Order ${orderId} status updated to: ${status}`);
     }
 
     res.status(200).json(order);

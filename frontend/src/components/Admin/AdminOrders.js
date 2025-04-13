@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FaEye, FaCheck, FaTimes, FaTruck, FaFilter, FaSearch, FaCalendarAlt, FaUser, FaShoppingCart, FaDollarSign, FaClock, FaChartLine, FaInfoCircle } from "react-icons/fa";
+import { Container, Row, Col, Card, Table, Form, Button, Modal, Badge } from "react-bootstrap";
+import { FaEye, FaCheck, FaTimes, FaTruck, FaFilter, FaSearch, FaCalendarAlt, FaUser, FaShoppingCart, FaDollarSign, FaClock, FaChartLine } from "react-icons/fa";
+import { FiShoppingBag, FiCheckCircle, FiXCircle, FiRefreshCw, FiClock } from 'react-icons/fi';
+import "./AdminOrders.css";
+import { useNavigate } from 'react-router-dom';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
@@ -16,22 +20,59 @@ const AdminOrders = () => {
     totalRevenue: 0,
     averageOrderValue: 0
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
-  }, [filterStatus]);
+  }, []);
 
   useEffect(() => {
     calculateStats();
   }, [orders]);
 
   const fetchOrders = async () => {
-    setLoading(true);
     try {
-      const response = await axios.get("http://localhost:8080/api/orders");
-      setOrders(response.data);
+      const token = localStorage.getItem('token');
+      console.log('Token from localStorage:', token);
+
+      if (!token) {
+        console.log('No token found in localStorage');
+        toast.error('Please login to view orders');
+        navigate('/login');
+        return;
+      }
+
+      console.log('Making request to:', 'http://localhost:8080/api/orders');
+      const response = await axios.get('http://localhost:8080/api/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('API Response:', response.data);
+
+      if (response.data && Array.isArray(response.data.orders)) {
+        const validOrders = response.data.orders.filter(order => order && order._id);
+        setOrders(validOrders);
+      } else {
+        console.error('Invalid response structure:', response.data);
+        toast.error('Invalid response from server');
+      }
     } catch (error) {
-      toast.error("Failed to fetch orders");
+      console.error('Detailed error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again');
+        navigate('/login');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to fetch orders');
+      }
     } finally {
       setLoading(false);
     }
@@ -40,7 +81,7 @@ const AdminOrders = () => {
   const calculateStats = () => {
     const totalOrders = orders.length;
     const pendingOrders = orders.filter(order => order.status === "pending").length;
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0);
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
     setStats({
@@ -53,250 +94,398 @@ const AdminOrders = () => {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      await axios.put(`http://localhost:8080/api/orders/${orderId}/status`, {
-        status: newStatus
-      });
-      fetchOrders();
-      toast.success("Order status updated successfully");
+      if (!orderId) {
+        toast.error('Invalid order ID');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please login to update order status');
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.put(
+        `http://localhost:8080/api/orders/${orderId}/status`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.data.success) {
+        toast.success('Order status updated successfully');
+        fetchOrders(); // Refresh the orders list
+      } else {
+        toast.error(response.data.message || 'Failed to update order status');
+      }
     } catch (error) {
-      toast.error("Failed to update order status");
+      console.error('Error updating order status:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again');
+        navigate('/login');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to update order status');
+      }
     }
   };
 
   const filteredOrders = orders.filter(order => {
     const matchesStatus = filterStatus === "all" || order.status === filterStatus;
-    const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = order.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         order.customerName?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
+  if (loading) {
+    return (
+      <Container className="admin-orders-container">
+        <div className="loading-state">
+          <FiRefreshCw className="loading-spinner" />
+        </div>
+      </Container>
+    );
+  }
+
   return (
-    <div className="p-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-              <FaShoppingCart className="w-6 h-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Orders</p>
-              <p className="text-lg font-semibold text-gray-900">{stats.totalOrders}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
-              <FaClock className="w-6 h-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending Orders</p>
-              <p className="text-lg font-semibold text-gray-900">{stats.pendingOrders}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-green-100 text-green-600">
-              <FaDollarSign className="w-6 h-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-lg font-semibold text-gray-900">${stats.totalRevenue.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-              <FaChartLine className="w-6 h-6" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Average Order Value</p>
-              <p className="text-lg font-semibold text-gray-900">${stats.averageOrderValue.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
+    <Container className="admin-orders-container">
+      <div className="page-header">
+        <h1 className="page-title">Manage Orders</h1>
+        <p className="page-subtitle">View and update order status</p>
       </div>
+
+      {orders.length === 0 ? (
+        <div className="empty-state">
+          <FiShoppingBag className="empty-state-icon" />
+          <h3 className="empty-state-title">No Orders Found</h3>
+          <p className="empty-state-text">
+            There are no orders to display at the moment.
+          </p>
+        </div>
+      ) : (
+        <Row className="orders-grid">
+          {orders.map((order) => (
+            <Col key={order._id} xs={12} md={6} lg={4}>
+              <Card className="order-card">
+                <Card.Body>
+                  <div className="order-header">
+                    <div className="order-info">
+                      <h3 className="order-id">Order #{order.orderNumber}</h3>
+                      <p className="order-date">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge
+                      className={`status-badge ${order.status.toLowerCase()}`}
+                      pill
+                    >
+                      {order.status === 'pending' && <FiClock className="status-icon" />}
+                      {order.status === 'completed' && <FiCheckCircle className="status-icon" />}
+                      {order.status === 'cancelled' && <FiXCircle className="status-icon" />}
+                      <span>{order.status}</span>
+                    </Badge>
+                  </div>
+
+                  <div className="order-items">
+                    {order.items.map((item, index) => (
+                      <div key={index} className="order-item">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="order-item-image"
+                        />
+                        <div className="order-item-details">
+                          <h4 className="order-item-name">{item.name}</h4>
+                          <p className="order-item-price">${item.price}</p>
+                          <p className="order-item-quantity">Qty: {item.quantity}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="order-summary">
+                    <div className="summary-item">
+                      <span>Subtotal</span>
+                      <span>${order.subtotal}</span>
+                    </div>
+                    <div className="summary-item">
+                      <span>Tax</span>
+                      <span>${order.tax}</span>
+                    </div>
+                    <div className="summary-item total">
+                      <span>Total</span>
+                      <span>${order.totalPrice}</span>
+                    </div>
+                  </div>
+
+                  <div className="order-actions">
+                    {order.status === 'pending' && (
+                      <>
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => handleStatusUpdate(order._id, 'completed')}
+                        >
+                          Complete Order
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleStatusUpdate(order._id, 'cancelled')}
+                        >
+                          Cancel Order
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+
+      {/* Stats Cards */}
+      <Row className="mb-4">
+        <Col md={3} sm={6}>
+          <Card className="stat-card">
+            <Card.Body>
+              <div className="stat-icon">
+                <FaShoppingCart />
+              </div>
+              <div className="stat-content">
+                <h3>{stats.totalOrders}</h3>
+                <p>Total Orders</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3} sm={6}>
+          <Card className="stat-card">
+            <Card.Body>
+              <div className="stat-icon pending">
+                <FaClock />
+              </div>
+              <div className="stat-content">
+                <h3>{stats.pendingOrders}</h3>
+                <p>Pending Orders</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3} sm={6}>
+          <Card className="stat-card">
+            <Card.Body>
+              <div className="stat-icon revenue">
+                <FaDollarSign />
+              </div>
+              <div className="stat-content">
+                <h3>${stats.totalRevenue.toFixed(2)}</h3>
+                <p>Total Revenue</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3} sm={6}>
+          <Card className="stat-card">
+            <Card.Body>
+              <div className="stat-icon average">
+                <FaChartLine />
+              </div>
+              <div className="stat-content">
+                <h3>${stats.averageOrderValue.toFixed(2)}</h3>
+                <p>Average Order Value</p>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="h-5 w-5 text-gray-400" />
+      <Card className="mb-4">
+        <Card.Body>
+          <Row>
+            <Col md={6}>
+              <div className="search-container">
+                <FaSearch className="search-icon" />
+                <Form.Control
+                  type="text"
+                  placeholder="Search orders..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="cosmic-input"
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Search orders..."
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <FaFilter className="text-gray-400" />
-            <select
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">All Orders</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-        </div>
-      </div>
+            </Col>
+            <Col md={6}>
+              <div className="filter-container">
+                <FaFilter className="filter-icon" />
+                <Form.Select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="cosmic-select"
+                >
+                  <option value="all">All Orders</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </Form.Select>
+              </div>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {order.orderNumber}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.customerName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(order.orderDate).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${order.total.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      order.status === "completed" ? "bg-green-100 text-green-800" :
-                      order.status === "pending" ? "bg-yellow-100 text-yellow-800" :
-                      order.status === "processing" ? "bg-blue-100 text-blue-800" :
-                      "bg-red-100 text-red-800"
-                    }`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={() => {
-                          setSelectedOrder(order);
-                          setShowDetailsModal(true);
-                        }}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <FaEye className="w-5 h-5" />
-                      </button>
-                      {order.status === "pending" && (
-                        <>
-                          <button
-                            onClick={() => handleStatusUpdate(order.id, "processing")}
-                            className="text-green-600 hover:text-green-900"
-                          >
-                            <FaCheck className="w-5 h-5" />
-                          </button>
-                          <button
-                            onClick={() => handleStatusUpdate(order.id, "cancelled")}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <FaTimes className="w-5 h-5" />
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+      <Card>
+        <Card.Body>
+          <div className="table-responsive">
+            <Table hover className="cosmic-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody>
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => (
+                    <tr key={order._id}>
+                      <td className="order-id">{order.orderNumber}</td>
+                      <td className="customer-info">
+                        <FaUser className="customer-icon" />
+                        {order.customerName}
+                      </td>
+                      <td className="order-date">
+                        <FaCalendarAlt className="date-icon" />
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="order-total">
+                        <FaDollarSign className="total-icon" />
+                        ${order.totalPrice?.toFixed(2)}
+                      </td>
+                      <td>
+                        <span className={`status-badge ${order.status.toLowerCase()}`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="action-buttons">
+                          <Button
+                            variant="link"
+                            onClick={() => {
+                              setSelectedOrder(order);
+                              setShowDetailsModal(true);
+                            }}
+                            className="cosmic-btn-view"
+                          >
+                            <FaEye />
+                          </Button>
+                          {order.status === "pending" && (
+                            <>
+                              <Button
+                                variant="link"
+                                onClick={() => handleStatusUpdate(order._id, "processing")}
+                                className="cosmic-btn-success"
+                              >
+                                <FaCheck />
+                              </Button>
+                              <Button
+                                variant="link"
+                                onClick={() => handleStatusUpdate(order._id, "cancelled")}
+                                className="cosmic-btn-danger"
+                              >
+                                <FaTimes />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="text-center">
+                      No orders found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+        </Card.Body>
+      </Card>
 
       {/* Order Details Modal */}
-      {showDetailsModal && selectedOrder && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Order Details</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Order Number</p>
-                  <p className="text-sm text-gray-900">{selectedOrder.orderNumber}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Customer</p>
-                  <p className="text-sm text-gray-900">{selectedOrder.customerName}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Date</p>
-                  <p className="text-sm text-gray-900">
-                    {new Date(selectedOrder.orderDate).toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Status</p>
-                  <p className="text-sm text-gray-900">{selectedOrder.status}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Total</p>
-                  <p className="text-sm text-gray-900">${selectedOrder.total.toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Items</p>
-                  <ul className="mt-2 space-y-2">
-                    {selectedOrder.items.map((item, index) => (
-                      <li key={index} className="text-sm text-gray-900">
-                        {item.name} x {item.quantity} - ${item.price.toFixed(2)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+      <Modal
+        show={showDetailsModal}
+        onHide={() => setShowDetailsModal(false)}
+        className="cosmic-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Order Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedOrder && (
+            <div className="order-details">
+              <div className="detail-item">
+                <span className="detail-label">Order Number:</span>
+                <span className="detail-value">{selectedOrder.orderNumber}</span>
               </div>
-              <div className="mt-6">
-                <button
-                  onClick={() => setShowDetailsModal(false)}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm"
-                >
-                  Close
-                </button>
+              <div className="detail-item">
+                <span className="detail-label">Customer:</span>
+                <span className="detail-value">{selectedOrder.customerName}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Date:</span>
+                <span className="detail-value">
+                  {new Date(selectedOrder.createdAt).toLocaleString()}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Status:</span>
+                <span className={`status-badge ${selectedOrder.status.toLowerCase()}`}>
+                  {selectedOrder.status}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Total:</span>
+                <span className="detail-value">
+                  ${selectedOrder.totalPrice?.toFixed(2)}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Items:</span>
+                <ul className="items-list">
+                  {selectedOrder.items?.map((item, index) => (
+                    <li key={index}>
+                      {item.name} x {item.quantity} - ${item.price?.toFixed(2)}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-    </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowDetailsModal(false)}
+            className="cosmic-btn"
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </Container>
   );
 };
 

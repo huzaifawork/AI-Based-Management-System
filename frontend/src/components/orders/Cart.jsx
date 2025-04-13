@@ -222,7 +222,12 @@ export default function Cart() {
         localStorage.removeItem("cart");
         setCart([]);
         window.dispatchEvent(new Event("cartUpdated"));
-        navigate(`/invoice/${response.data._id}`);
+        navigate('/order-confirmation', { 
+          state: { 
+            order: response.data.order,
+            orderId: response.data.order._id
+          }
+        });
       }
     } catch (error) {
       console.error("Error placing order:", error);

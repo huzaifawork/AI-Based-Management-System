@@ -2,32 +2,35 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Home, Booking, AboutUs, Contact, PageNotFound, Room, Services, Team, Testimonial, Help } from "./pages/index";
 import Header from "./components/common/Header";
-import Footer from "./components/Footer";
-import LoginPage from "./components/Login";
+import Footer from "./components/layout/Footer";
+import LoginPage from "./components/Auth/Login";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Dashboard from "./components/Admin/Sidebar";
 import BookRoom from "./pages/BookRoom";
 import OrderFood from "./pages/OrderFood";
 import Cart from "./components/orders/Cart";
-import MyOrders from "./components/MyOrders";
-import Invoice from "./components/Invoice";
-import MyReservations from "./components/MyReservations";
-import MyBookings from "./components/MyBookings";
+import MyOrders from "./components/User/MyOrders";
+import Invoice from "./components/orders/Invoice";
+import MyBookings from "./components/User/MyBookings";
+import MyReservations from "./components/User/MyReservations";
 import AdminOrders from "./pages/AdminOrders";
 import DeliveryTracking from "./components/DeliveryTracking";
 import DeliveryTrackingPage from "./components/DeliveryTracking";
 import ReserveTable from "./pages/ReserveTable";
 import TableReservationPage from "./pages/TableReservationPage";
 import TableConfirmationPage from "./pages/TableConfirmationPage";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Profile from "./components/Profile";
+import Profile from "./components/User/Profile";
 import Feedback from "./components/User/Feedback";
 import "./styles/theme.css";
 import "./styles/global.css";
 import BookingPage from './pages/BookingPage';
 import BookingConfirmation from "./pages/BookingConfirmation";
+import OrderTracking from "./pages/OrderTracking";
+import { Toaster } from 'react-hot-toast';
 
 // Layout Component for Header and Footer
 const Layout = ({ children }) => {
@@ -59,6 +62,17 @@ const AdminRoute = ({ children }) => {
 function App() {
   return (
     <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'rgba(17, 34, 64, 0.9)',
+            color: '#f0f4fc',
+            border: '1px solid rgba(100, 255, 218, 0.1)',
+          },
+        }}
+      />
       <Router>
         <Routes>
           <Route path="/" element={<Layout><Home /></Layout>} />
@@ -76,9 +90,9 @@ function App() {
           <Route path="/order-food" element={<Layout><OrderFood /></Layout>} />
           <Route path="/cart" element={<Layout><Cart /></Layout>} />
           <Route path="/my-orders" element={<Layout><MyOrders /></Layout>} />
-          <Route path="/invoice/:id" element={<Layout><Invoice /></Layout>} />
-          <Route path="/my-reservations" element={<Layout><MyReservations /></Layout>} />
+          <Route path="/invoice/:orderId" element={<Layout><Invoice /></Layout>} />
           <Route path="/my-bookings" element={<Layout><MyBookings /></Layout>} />
+          <Route path="/my-reservations" element={<Layout><MyReservations /></Layout>} />
           <Route path="/admin-orders" element={<Layout><AdminOrders /></Layout>} />
           <Route path="/delivery-tracking" element={<Layout><DeliveryTrackingPage /></Layout>} />
           <Route path="/reserve-table" element={<Layout><ReserveTable /></Layout>} />
@@ -88,6 +102,16 @@ function App() {
           <Route path="/feedback" element={<Layout><Feedback /></Layout>} />
           <Route path="/booking-page/:id" element={<Layout><BookingPage /></Layout>} />
           <Route path="/booking-confirmation" element={<Layout><BookingConfirmation /></Layout>} />
+          <Route path="/order-confirmation" element={
+            <AuthenticatedRoute>
+              <Layout><OrderConfirmation /></Layout>
+            </AuthenticatedRoute>
+          } />
+          <Route path="/track-order/:orderId" element={
+            <AuthenticatedRoute>
+              <Layout><OrderTracking /></Layout>
+            </AuthenticatedRoute>
+          } />
           <Route path="*" element={<Layout><PageNotFound /></Layout>} />
         </Routes>
         <ToastContainer

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./AdminUpdateMenu.css";
@@ -9,14 +10,14 @@ const AdminUpdateMenu = () => {
   const [loading, setLoading] = useState(true);
   const [menuItems, setMenuItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [updating, setUpdating] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
     category: "",
-    availability: true,
+    image: null,
   });
-  const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [categories] = useState([
     "appetizers",
@@ -60,9 +61,9 @@ const AdminUpdateMenu = () => {
     setFormData({
       name: item.name,
       description: item.description,
-      price: item.price,
+      price: item.price.toString(),
       category: item.category,
-      availability: item.availability,
+      image: null,
     });
     setImagePreview(item.image ? `http://localhost:8080${item.image}` : null);
   };
@@ -71,24 +72,25 @@ const AdminUpdateMenu = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB");
+        alert('Image size should be less than 5MB');
         return;
       }
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file");
+      if (!file.type.startsWith('image/')) {
+        alert('Please upload an image file');
         return;
       }
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setFormData(prev => ({ ...prev, image: file }));
     }
   };
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -98,66 +100,59 @@ const AdminUpdateMenu = () => {
       return;
     }
 
-    setLoading(true);
+    setUpdating(true);
     try {
       const token = localStorage.getItem("token");
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach((key) => {
-        formDataToSend.append(key, formData[key]);
-      });
-      if (image) {
-        formDataToSend.append("image", image);
-      }
+      const submitData = new FormData();
 
-      await axios.put(`http://localhost:8080/api/menus/${selectedItem._id}`, formDataToSend, {
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null) {
+          submitData.append(key, formData[key]);
+        }
+      });
+
+      await axios.put(`http://localhost:8080/api/menus/${selectedItem._id}`, submitData, {
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       });
 
       toast.success("Menu item updated successfully");
-      fetchMenuItems(); // Refresh the menu items list
+      fetchMenuItems();
       setSelectedItem(null);
       setFormData({
         name: "",
         description: "",
         price: "",
         category: "",
-        availability: true,
+        image: null,
       });
-      setImage(null);
       setImagePreview(null);
     } catch (error) {
       console.error("Error updating menu item:", error);
       toast.error(error.response?.data?.message || "Error updating menu item");
     } finally {
-      setLoading(false);
+      setUpdating(false);
     }
   };
 
   if (loading) {
     return (
       <div className="loading-container">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
+        <Spinner animation="border" variant="primary" />
       </div>
     );
   }
 
   return (
-    <div className="update-menu-container">
+    <Container fluid className="update-menu-container">
       <div className="update-menu-header">
-        <h2>Update Menu Item</h2>
-        <button className="btn btn-secondary" onClick={() => navigate("/dashboard")}>
-          Back to Dashboard
-        </button>
+        <h2>Update Menu Items</h2>
       </div>
 
-      <div className="update-menu-content">
-        <div className="menu-items-list">
-          <h3>Select Menu Item to Update</h3>
+      <Row>
+        <Col md={7}>
           <div className="menu-items-grid">
             {menuItems.map((item) => (
               <div
@@ -165,125 +160,126 @@ const AdminUpdateMenu = () => {
                 className={`menu-item-card ${selectedItem?._id === item._id ? "selected" : ""}`}
                 onClick={() => handleItemSelect(item)}
               >
-                <img
-                  src={item.image ? `http://localhost:8080${item.image}` : "https://via.placeholder.com/150"}
-                  alt={item.name}
-                  className="menu-item-image"
-                />
+                <div className="menu-item-image">
+                  <img
+                    src={item.image ? `http://localhost:8080${item.image}` : "/placeholder-food.jpg"}
+                    alt={item.name}
+                    onError={(e) => {
+                      e.target.src = "/placeholder-food.jpg";
+                    }}
+                  />
+                </div>
                 <div className="menu-item-info">
                   <h4>{item.name}</h4>
                   <p>{item.category}</p>
+                  <p>${item.price.toFixed(2)}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Col>
 
-        {selectedItem && (
-          <div className="update-form-section">
-            <div className="image-section">
+        <Col md={5}>
+          {selectedItem ? (
+            <Form className="update-menu-form" onSubmit={handleSubmit}>
               <div className="image-preview-container">
                 {imagePreview ? (
-                  <img src={imagePreview} alt="Menu item preview" className="preview-image" />
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="preview-image"
+                    onError={(e) => {
+                      e.target.src = "/placeholder-food.jpg";
+                    }}
+                  />
                 ) : (
-                  <div className="no-image">No image available</div>
+                  <div className="no-image">No image selected</div>
                 )}
               </div>
-              <div className="image-upload">
-                <label htmlFor="image" className="upload-label">
-                  Change Image
-                </label>
-                <input
+
+              <Form.Group className="form-group">
+                <Form.Label>Image</Form.Label>
+                <Form.Control
                   type="file"
-                  id="image"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="file-input"
+                  className="form-control"
                 />
-              </div>
-            </div>
+              </Form.Group>
 
-            <form onSubmit={handleSubmit} className="update-menu-form">
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input
+              <Form.Group className="form-group">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
                   type="text"
-                  id="name"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="form-control"
                   required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="description">Description</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
                   className="form-control"
-                  rows="3"
-                  required
                 />
-              </div>
+              </Form.Group>
 
-              <div className="form-group">
-                <label htmlFor="price">Price</label>
-                <input
-                  type="number"
-                  id="price"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  className="form-control"
-                  step="0.01"
-                  min="0"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="category">Category</label>
-                <select
-                  id="category"
+              <Form.Group className="form-group">
+                <Form.Label>Category</Form.Label>
+                <Form.Control
+                  type="text"
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="form-control"
                   required
+                  className="form-control"
+                />
+              </Form.Group>
+
+              <Form.Group className="form-group">
+                <Form.Label>Price</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  required
+                  step="0.01"
+                  min="0"
+                  className="form-control"
+                />
+              </Form.Group>
+
+              <Form.Group className="form-group">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                  className="form-control"
+                />
+              </Form.Group>
+
+              <div className="d-grid gap-2">
+                <Button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={updating}
                 >
-                  <option value="">Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group availability-toggle">
-                <label className="toggle-label">
-                  <input
-                    type="checkbox"
-                    name="availability"
-                    checked={formData.availability}
-                    onChange={handleInputChange}
-                    className="toggle-input"
-                  />
-                  <span className="toggle-text">
-                    {formData.availability ? "Available" : "Unavailable"}
-                  </span>
-                </label>
-              </div>
-
-              <div className="form-actions">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? "Updating..." : "Update Menu Item"}
-                </button>
-                <button
+                  {updating ? (
+                    <>
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                        className="me-2"
+                      />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Item"
+                  )}
+                </Button>
+                <Button
                   type="button"
                   className="btn btn-secondary"
                   onClick={() => {
@@ -293,20 +289,23 @@ const AdminUpdateMenu = () => {
                       description: "",
                       price: "",
                       category: "",
-                      availability: true,
+                      image: null,
                     });
-                    setImage(null);
                     setImagePreview(null);
                   }}
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
-            </form>
-          </div>
-        )}
-      </div>
-    </div>
+            </Form>
+          ) : (
+            <div className="text-center p-4">
+              <h4 className="text-muted">Select a menu item to update</h4>
+            </div>
+          )}
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

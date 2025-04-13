@@ -54,6 +54,7 @@ export default function Header() {
       fixed="top"
       className={`navbar-custom ${scrolled ? "navbar-scrolled" : ""}`}
       variant="dark"
+      style={{ marginTop: "0px" }}
     >
       <Container>
         <Navbar.Brand

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spinner, Table } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -26,34 +26,32 @@ const AdminViewRooms = () => {
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:8080/api/rooms");
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:8080/api/rooms", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setRooms(response.data);
-      toast.success("Rooms loaded successfully!");
     } catch (error) {
       console.error("Error fetching rooms:", error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        navigate("/login");
+      }
       toast.error("Failed to fetch rooms");
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper function to get the correct image URL
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/images/placeholder-room.jpg';
-    
     try {
-      // If it's already a full URL
       if (imagePath.startsWith('http')) return imagePath;
-      
-      // Remove any leading slashes
       const cleanPath = imagePath.replace(/^\/+/, '');
-      
-      // If the path includes 'uploads', make sure it's properly formatted
       if (cleanPath.includes('uploads')) {
         return `http://localhost:8080/${cleanPath}`;
       }
-      
-      // For all other cases, assume it's a relative path in the uploads directory
       return `http://localhost:8080/uploads/${cleanPath}`;
     } catch (error) {
       console.error('Error formatting image URL:', error);
@@ -62,82 +60,75 @@ const AdminViewRooms = () => {
   };
 
   return (
-    <div className="admin-manage-rooms p-4">
-      <h2 className="page-title mb-4">View Rooms</h2>
+    <div className="admin-manage-rooms">
+      <Container fluid>
+        <div className="admin-header">
+          <div className="header-content">
+            <h1 className="admin-title">View Rooms</h1>
+            <p className="admin-subtitle">Browse all available rooms in the system</p>
+          </div>
+        </div>
 
-      <Card className="cosmic-card">
-        <Card.Header className="cosmic-card-header">
-          <h5 className="mb-0">All Rooms</h5>
-        </Card.Header>
-        <Card.Body className="cosmic-card-body">
-          <Table striped bordered hover responsive className="cosmic-table">
-            <thead>
-              <tr>
-                <th>Room Number</th>
-                <th>Type</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Description</th>
-                <th>Image</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="6" className="text-center p-5">
-                    <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                  </td>
-                </tr>
-              ) : rooms.length > 0 ? (
-                rooms.map((room) => (
-                  <tr key={room._id}>
-                    <td>{room.roomNumber}</td>
-                    <td>{room.roomType}</td>
-                    <td>${room.price}</td>
-                    <td>
-                      <span
-                        className={`badge cosmic-badge ${
-                          room.status === "Available" ? "available" : "unavailable"
-                        }`}
-                      >
+        <div className="room-grid">
+          {loading ? (
+            <div className="loading-state">
+              <div className="cosmic-spinner"></div>
+              <p>Loading rooms...</p>
+            </div>
+          ) : rooms.length > 0 ? (
+            <Row>
+              {rooms.map((room) => (
+                <Col key={room._id} lg={4} md={6} className="mb-4">
+                  <div className="room-card">
+                    <div className="room-card-image">
+                      <img
+                        src={getImageUrl(room.image)}
+                        alt={room.roomNumber}
+                        onError={(e) => {
+                          e.target.src = "/images/placeholder-room.jpg";
+                          e.target.onerror = null;
+                        }}
+                      />
+                      <span className={`room-status ${room.status.toLowerCase()}`}>
                         {room.status}
                       </span>
-                    </td>
-                    <td>{room.description}</td>
-                    <td>
-                      {room.image && (
-                        <img
-                          src={getImageUrl(room.image)}
-                          alt={room.roomNumber}
-                          className="cosmic-room-image"
-                          onError={(e) => {
-                            console.error("Error loading image:", room.image);
-                            e.target.src = "/images/placeholder-room.jpg";
-                            e.target.onerror = null;
-                          }}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center">
-                    <div className="empty-state">
-                      <div className="empty-state-text">No rooms found</div>
-                      <div className="empty-state-subtext">
-                        Add some rooms to see them listed here
+                    </div>
+                    <div className="room-card-content">
+                      <div className="room-card-header">
+                        <h3 className="room-number">Room {room.roomNumber}</h3>
+                        <span className="room-price">${room.price}</span>
+                      </div>
+                      <div className="room-type">{room.roomType}</div>
+                      <p className="room-description">{room.description}</p>
+                      <div className="room-amenities">
+                        <div className="amenity">
+                          <span className="amenity-icon">🛏️</span>
+                          <span className="amenity-text">King Size Bed</span>
+                        </div>
+                        <div className="amenity">
+                          <span className="amenity-icon">🚿</span>
+                          <span className="amenity-text">Private Bathroom</span>
+                        </div>
+                        <div className="amenity">
+                          <span className="amenity-icon">📺</span>
+                          <span className="amenity-text">Smart TV</span>
+                        </div>
                       </div>
                     </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-        </Card.Body>
-      </Card>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <div className="empty-state">
+              <div className="empty-state-text">No rooms found</div>
+              <div className="empty-state-subtext">
+                Add some rooms to see them listed here
+              </div>
+            </div>
+          )}
+        </div>
+      </Container>
     </div>
   );
 };

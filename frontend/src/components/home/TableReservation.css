@@ -1,35 +1,59 @@
-.section {
-  padding: 2rem 0;
+.tables-section {
+  padding: 2rem 0 4rem;
+  background: var(--gradient-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #fff;
+}
+
+.section-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  display: block;
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-  text-align: center;
-  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .tables-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  padding: 0 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.card {
-  background: var(--bg-secondary);
-  border-radius: 12px;
+.table-card {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.card:hover {
-  transform: translateY(-5px);
+.table-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
 }
 
-.card-image {
+.image-wrapper {
   position: relative;
   height: 200px;
   overflow: hidden;
@@ -39,134 +63,186 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.table-card:hover .table-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
 }
 
 .price-badge {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--primary-color);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--primary-bg);
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: 2rem;
   font-weight: 600;
+  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-sm);
 }
 
-.card-content {
-  padding: 1.5rem;
+.price-badge small {
+  opacity: 0.8;
+  margin-left: 0.25rem;
 }
 
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+.card-body {
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .table-title {
-  font-size: 1.25rem;
+  color: #fff;
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.capacity {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-secondary);
-}
-
-.table-description {
-  color: var(--text-secondary);
   margin-bottom: 1rem;
-  line-height: 1.5;
 }
 
-.table-details {
+.table-features {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
-.detail-item {
+.feature {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--font-size-sm);
+}
+
+.feature-icon {
+  color: var(--accent-primary);
+  width: 16px;
+  height: 16px;
 }
 
 .card-actions {
-  display: flex;
-  gap: 1rem;
+  margin-top: auto;
 }
 
 .btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: 2rem;
   transition: all 0.3s ease;
-  border: none;
+  width: 100%;
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  color: white;
+  background: var(--gradient-primary);
+  border: none;
+  color: var(--primary-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-  background: var(--primary-color-dark);
-}
-
-.btn-outline {
-  background: transparent;
-  border: 2px solid var(--primary-color);
-  color: var(--primary-color);
-}
-
-.btn-outline:hover {
-  background: var(--primary-color-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* Skeleton Loading */
-.skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+.skeleton-loader {
+  background: var(--gradient-glass);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  height: 100%;
 }
 
-.image-placeholder {
+.skeleton-image {
   height: 200px;
-  background: #e0e0e0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-.content-placeholder {
-  padding: 1.5rem;
+.skeleton-content {
+  padding: 1.25rem;
 }
 
-.title-placeholder {
+.skeleton-title {
   height: 24px;
-  width: 70%;
-  background: #e0e0e0;
+  width: 80%;
+  background: rgba(255, 255, 255, 0.05);
   margin-bottom: 1rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
+  animation: shimmer 1.5s infinite;
 }
 
-.text-placeholder {
+.skeleton-text {
   height: 16px;
   width: 100%;
-  background: #e0e0e0;
-  margin-bottom: 0.5rem;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 0.75rem;
+  border-radius: 0.25rem;
+  animation: shimmer 1.5s infinite;
 }
 
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (max-width: 768px) {
+  .tables-section {
+    padding: 2rem 0 3rem;
   }
-  100% {
-    background-position: -200% 0;
+
+  .tables-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    padding: 0.5rem;
+  }
+
+  .image-wrapper {
+    height: 180px;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .table-features {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .section-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .image-wrapper {
+    height: 160px;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: var(--font-size-xs);
   }
 }
 

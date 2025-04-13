@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FiUser, FiMail, FiLock, FiEdit2, FiTrash2, FiSearch, FiFilter, FiToggleLeft, FiToggleRight } from "react-icons/fi";
+import { FiUser, FiMail, FiLock, FiEdit2, FiTrash2, FiSearch, FiFilter, FiToggleLeft, FiToggleRight, FiUserPlus, FiUserCheck, FiUserX } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "./UserProfileTable.css";
 
@@ -13,6 +13,7 @@ const UserProfileManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editUser, setEditUser] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
 
   useEffect(() => {
     fetchUsers();
@@ -20,6 +21,7 @@ const UserProfileManagement = () => {
 
   const fetchUsers = async () => {
     try {
+      setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
         toast.error("Please log in to access this page");
@@ -35,31 +37,35 @@ const UserProfileManagement = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching users:", error);
-      if (error.response) {
-        if (error.response.status === 401) {
-          toast.error("Your session has expired. Please log in again.");
-          setTimeout(() => {
-            window.location.href = "/login";
-          }, 2000);
-        } else if (error.response.status === 403) {
-          toast.error("You don't have permission to access this page.");
-        } else {
-          toast.error(error.response.data.message || "Failed to fetch users");
-          if (error.response.data.details) {
-            toast.info(error.response.data.details);
-          }
-        }
-      } else if (error.request) {
-        toast.error("No response from server. Please check your connection.");
-      } else {
-        toast.error("Error: " + error.message);
-      }
+      handleError(error);
       setLoading(false);
     }
   };
 
+  const handleError = (error) => {
+    if (error.response) {
+      if (error.response.status === 401) {
+        toast.error("Your session has expired. Please log in again.");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+      } else if (error.response.status === 403) {
+        toast.error("You don't have permission to access this page.");
+      } else {
+        toast.error(error.response.data.message || "Failed to fetch users");
+        if (error.response.data.details) {
+          toast.info(error.response.data.details);
+        }
+      }
+    } else if (error.request) {
+      toast.error("No response from server. Please check your connection.");
+    } else {
+      toast.error("Error: " + error.message);
+    }
+  };
+
   const handleEditUser = (user) => {
-    setEditUser(user);
+    setEditUser({ ...user });
     setEditMode(true);
   };
 
@@ -76,15 +82,7 @@ const UserProfileManagement = () => {
       setEditMode(false);
       setEditUser(null);
     } catch (error) {
-      console.error("Error updating user:", error);
-      if (error.response) {
-        toast.error(error.response.data.message || "Failed to update user");
-        if (error.response.data.details) {
-          toast.info(error.response.data.details);
-        }
-      } else {
-        toast.error("Error updating user. Please try again.");
-      }
+      handleError(error);
     }
   };
 
@@ -92,21 +90,14 @@ const UserProfileManagement = () => {
     if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.delete(`http://localhost:8080/api/admin/users/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await axios.delete(
+          `http://localhost:8080/api/admin/users/${userId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         toast.success(response.data.message || "User deleted successfully");
         fetchUsers();
       } catch (error) {
-        console.error("Error deleting user:", error);
-        if (error.response) {
-          toast.error(error.response.data.message || "Failed to delete user");
-          if (error.response.data.details) {
-            toast.info(error.response.data.details);
-          }
-        } else {
-          toast.error("Error deleting user. Please try again.");
-        }
+        handleError(error);
       }
     }
   };
@@ -122,19 +113,25 @@ const UserProfileManagement = () => {
       toast.success(response.data.message || `User ${currentStatus ? 'deactivated' : 'activated'} successfully`);
       fetchUsers();
     } catch (error) {
-      console.error("Error toggling user status:", error);
-      if (error.response) {
-        toast.error(error.response.data.message || "Failed to update user status");
-        if (error.response.data.details) {
-          toast.info(error.response.data.details);
-        }
-      } else {
-        toast.error("Error updating user status. Please try again.");
-      }
+      handleError(error);
     }
   };
 
-  const filteredUsers = users.filter(user => {
+  const handleSort = (key) => {
+    const direction = sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+    setSortConfig({ key, direction });
+  };
+
+  const sortedUsers = [...users].sort((a, b) => {
+    if (sortConfig.key === 'name') {
+      return sortConfig.direction === 'asc' 
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name);
+    }
+    return 0;
+  });
+
+  const filteredUsers = sortedUsers.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === "All" || user.role === roleFilter;
@@ -143,8 +140,9 @@ const UserProfileManagement = () => {
 
   if (loading) {
     return (
-      <div className="admin-container">
-        <div className="loading-spinner">Loading users...</div>
+      <div className="dash-loading-container">
+        <div className="dash-loading-spinner"></div>
+        <p>Loading users...</p>
       </div>
     );
   }
@@ -152,7 +150,10 @@ const UserProfileManagement = () => {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h2 className="admin-title">User Management</h2>
+        <div className="header-content">
+          <h1 className="admin-title">User Management</h1>
+          <p className="admin-subtitle">Manage and monitor user profiles</p>
+        </div>
         <div className="admin-actions">
           <div className="search-box">
             <FiSearch className="search-icon" />
@@ -179,6 +180,30 @@ const UserProfileManagement = () => {
         </div>
       </div>
 
+      <div className="users-stats">
+        <div className="stat-card">
+          <FiUserCheck className="stat-icon" />
+          <div className="stat-info">
+            <span className="stat-value">{users.filter(u => u.isActive).length}</span>
+            <span className="stat-label">Active Users</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <FiUserX className="stat-icon" />
+          <div className="stat-info">
+            <span className="stat-value">{users.filter(u => !u.isActive).length}</span>
+            <span className="stat-label">Inactive Users</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <FiUserPlus className="stat-icon" />
+          <div className="stat-info">
+            <span className="stat-value">{users.filter(u => u.role === 'admin').length}</span>
+            <span className="stat-label">Administrators</span>
+          </div>
+        </div>
+      </div>
+
       <div className="users-grid">
         {filteredUsers.map((user) => (
           <div key={user._id} className="user-card">
@@ -188,10 +213,12 @@ const UserProfileManagement = () => {
               </div>
               <div className="user-info">
                 <h3>{user.name}</h3>
-                <span className={`role-badge ${user.role}`}>{user.role}</span>
-                <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                  {user.isActive ? 'Active' : 'Inactive'}
-                </span>
+                <div className="user-badges">
+                  <span className={`role-badge ${user.role}`}>{user.role}</span>
+                  <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
+                    {user.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -210,25 +237,24 @@ const UserProfileManagement = () => {
               <button
                 className="edit-button"
                 onClick={() => handleEditUser(user)}
+                title="Edit User"
               >
-                <FiEdit2 className="me-2" /> Edit
+                <FiEdit2 /> Edit
               </button>
               <button
                 className="toggle-button"
                 onClick={() => handleToggleStatus(user._id, user.isActive)}
+                title={user.isActive ? 'Deactivate User' : 'Activate User'}
               >
-                {user.isActive ? (
-                  <FiToggleLeft className="me-2" /> 
-                ) : (
-                  <FiToggleRight className="me-2" />
-                )}
+                {user.isActive ? <FiToggleLeft /> : <FiToggleRight />}
                 {user.isActive ? 'Deactivate' : 'Activate'}
               </button>
               <button
                 className="delete-button"
                 onClick={() => handleDeleteUser(user._id)}
+                title="Delete User"
               >
-                <FiTrash2 className="me-2" /> Delete
+                <FiTrash2 /> Delete
               </button>
             </div>
           </div>

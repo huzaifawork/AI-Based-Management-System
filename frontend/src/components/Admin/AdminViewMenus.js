@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Card, Badge, Button, Modal } from "react-bootstrap";
-import { FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaImage } from "react-icons/fa";
-import "./AdminViewMenus.css";
+import { Container, Row, Col, Button, Modal, Form } from "react-bootstrap";
+import { FaEdit, FaTrash, FaToggleOn, FaToggleOff } from "react-icons/fa";
+import "./AdminManageRooms.css";
 
 const AdminViewMenus = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -54,149 +54,125 @@ const AdminViewMenus = () => {
   };
 
   const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-      console.log('No image path provided');
-      return null;
-    }
-    
+    if (!imagePath) return '/images/placeholder-menu.jpg';
     try {
-      // If it's already a full URL
-      if (imagePath.startsWith('http')) {
-        console.log('Using full URL:', imagePath);
-        return imagePath;
-      }
-      
-      // Remove any leading slashes
+      if (imagePath.startsWith('http')) return imagePath;
       const cleanPath = imagePath.replace(/^\/+/, '');
-      console.log('Cleaned path:', cleanPath);
-      
-      // If the path includes 'uploads', make sure it's properly formatted
       if (cleanPath.includes('uploads')) {
-        const url = `http://localhost:8080/${cleanPath}`;
-        console.log('Generated URL with uploads:', url);
-        return url;
+        return `http://localhost:8080/${cleanPath}`;
       }
-      
-      // For all other cases, assume it's a relative path in the uploads directory
-      const url = `http://localhost:8080/uploads/${cleanPath}`;
-      console.log('Generated URL:', url);
-      return url;
+      return `http://localhost:8080/uploads/${cleanPath}`;
     } catch (error) {
       console.error('Error formatting image URL:', error);
-      return null;
+      return '/images/placeholder-menu.jpg';
     }
-  };
-
-  // Add this function to handle image loading errors
-  const handleImageError = (e, item) => {
-    console.error('Image failed to load:', {
-      itemId: item._id,
-      itemName: item.name,
-      imagePath: item.image,
-      error: e
-    });
-    e.target.src = "https://via.placeholder.com/300";
-    e.target.onerror = null;
   };
 
   return (
-    <div className="admin-view-menus">
-      <div className="header-section">
-        <h2>Menu Items</h2>
-        <div className="category-filter">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="form-select"
-          >
-            <option value="all">All Categories</option>
-            <option value="appetizers">Appetizers</option>
-            <option value="main-course">Main Course</option>
-            <option value="desserts">Desserts</option>
-            <option value="beverages">Beverages</option>
-          </select>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="loading-spinner">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
+    <div className="admin-manage-rooms">
+      <Container fluid>
+        <div className="admin-header">
+          <h1 className="admin-title">Menu Items</h1>
+          <div className="d-flex align-items-center gap-3">
+            <Form.Select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="cosmic-input"
+              style={{ width: '200px' }}
+            >
+              <option value="all">All Categories</option>
+              <option value="appetizers">Appetizers</option>
+              <option value="main-course">Main Course</option>
+              <option value="desserts">Desserts</option>
+              <option value="beverages">Beverages</option>
+            </Form.Select>
           </div>
         </div>
-      ) : (
-        <div className="menu-grid">
-          {menuItems.map((item) => (
-            <Card key={item._id} className="menu-card">
-              <div className="image-container">
-                {item.image ? (
-                  <img
-                    src={getImageUrl(item.image)}
-                    alt={item.name}
-                    className="menu-image"
-                    onError={(e) => handleImageError(e, item)}
-                  />
-                ) : (
-                  <div className="no-image">
-                    <FaImage size={40} />
-                    <span>No Image</span>
-                  </div>
-                )}
-                <Badge 
-                  bg={item.availability ? "success" : "danger"}
-                  className="availability-badge"
-                >
-                  {item.availability ? "Available" : "Unavailable"}
-                </Badge>
-              </div>
-              <Card.Body>
-                <Card.Title>{item.name}</Card.Title>
-                <Card.Text>{item.description}</Card.Text>
-                <div className="price-tag">${parseFloat(item.price).toFixed(2)}</div>
-                <div className="category-tag">{item.category}</div>
-                <div className="action-buttons">
-                  <Button
-                    variant="outline-primary"
-                    size="sm"
-                    onClick={() => handleAvailabilityToggle(item._id, item.availability)}
-                    title={item.availability ? "Set Unavailable" : "Set Available"}
-                  >
-                    {item.availability ? <FaToggleOn /> : <FaToggleOff />}
-                  </Button>
-                  <Button
-                    variant="outline-warning"
-                    size="sm"
-                    onClick={() => window.location.href = `/admin/update-menu/${item._id}`}
-                    title="Edit Item"
-                  >
-                    <FaEdit />
-                  </Button>
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={() => {
-                      setItemToDelete(item);
-                      setShowDeleteModal(true);
-                    }}
-                    title="Delete Item"
-                  >
-                    <FaTrash />
-                  </Button>
-                </div>
-              </Card.Body>
-            </Card>
-          ))}
-        </div>
-      )}
 
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
+        <div className="room-grid">
+          {loading ? (
+            <div className="loading-state">
+              <div className="cosmic-spinner"></div>
+              <p>Loading menu items...</p>
+            </div>
+          ) : menuItems.length > 0 ? (
+            <Row>
+              {menuItems.map((item) => (
+                <Col key={item._id} lg={4} md={6} className="mb-4">
+                  <div className="room-card">
+                    <div className="room-card-image">
+                      <img
+                        src={getImageUrl(item.image)}
+                        alt={item.name}
+                        onError={(e) => {
+                          e.target.src = "/images/placeholder-menu.jpg";
+                          e.target.onerror = null;
+                        }}
+                      />
+                      <span className={`room-status ${item.availability ? 'available' : 'unavailable'}`}>
+                        {item.availability ? 'Available' : 'Unavailable'}
+                      </span>
+                    </div>
+                    <div className="room-card-content">
+                      <div className="room-card-header">
+                        <h3 className="room-number">{item.name}</h3>
+                        <div className="room-price">${parseFloat(item.price).toFixed(2)}</div>
+                      </div>
+                      <div className="room-type">{item.category}</div>
+                      <p className="room-description">{item.description}</p>
+                      <div className="d-flex gap-2 mt-3">
+                        <Button
+                          variant={item.availability ? "outline-success" : "outline-danger"}
+                          className="flex-grow-1"
+                          onClick={() => handleAvailabilityToggle(item._id, item.availability)}
+                        >
+                          {item.availability ? <FaToggleOn className="me-2" /> : <FaToggleOff className="me-2" />}
+                          {item.availability ? 'Available' : 'Unavailable'}
+                        </Button>
+                        <Button
+                          variant="outline-warning"
+                          onClick={() => window.location.href = `/admin/update-menu/${item._id}`}
+                        >
+                          <FaEdit />
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          onClick={() => {
+                            setItemToDelete(item);
+                            setShowDeleteModal(true);
+                          }}
+                        >
+                          <FaTrash />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <div className="empty-state">
+              <div className="empty-state-text">No menu items found</div>
+              <div className="empty-state-subtext">
+                {selectedCategory === "all" 
+                  ? "Add some items to get started" 
+                  : "No items in this category"}
+              </div>
+            </div>
+          )}
+        </div>
+      </Container>
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton className="border-0">
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete {itemToDelete?.name}?
+          Are you sure you want to delete <strong>{itemToDelete?.name}</strong>?
+          <br />
+          This action cannot be undone.
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="border-0">
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
             Cancel
           </Button>
@@ -204,7 +180,7 @@ const AdminViewMenus = () => {
             variant="danger" 
             onClick={() => handleDeleteItem(itemToDelete?._id)}
           >
-            Delete
+            Delete Item
           </Button>
         </Modal.Footer>
       </Modal>

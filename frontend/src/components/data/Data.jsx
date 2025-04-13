@@ -62,19 +62,26 @@ export const socialIcons = [
 
 export const carouselData = [
   {
-    img: "../assets/img/carousel-1.jpg",
-    title: "Effortless Operations, Memorable Guest Experiences",
-    subtitle: "Simplify Your Hotel and Restaurant Operations",
-    btn1: "Book Room",
-    btn2: "REserve Table",
-  },
-  {
-    img: "../assets/img/resturant.png",
+    img: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     title: "Effortless Operations, Memorable Guest Experiences",
     subtitle: "Simplify Your Hotel and Restaurant Operations",
     btn1: "Book Room",
     btn2: "Reserve Table",
   },
+  {
+    img: "https://images.unsplash.com/photo-1596386461350-326ccb383e9f?q=80&w=2013&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Luxury Accommodations for Every Guest",
+    subtitle: "Experience Unmatched Comfort",
+    btn1: "Book Room",
+    btn2: "Reserve Table",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Modern Amenities, Timeless Elegance",
+    subtitle: "Your Perfect Stay Awaits",
+    btn1: "Book Room",
+    btn2: "Reserve Table",
+  }
 ];
 export const about = [
   {

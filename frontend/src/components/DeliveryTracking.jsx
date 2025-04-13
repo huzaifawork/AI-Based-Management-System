@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Spinner, Alert, Card } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import useDeliveryTracking from "../hooks/useDeliveryTracking";
-import DeliveryMap from "./DeliveryMap";
-import "./DeliveryTracking.css";
+import DeliveryMap from "./orders/DeliveryMap";
+import "./orders/DeliveryTracking.css";
 
 const DeliveryTracking = () => {
   const { orderId } = useParams();

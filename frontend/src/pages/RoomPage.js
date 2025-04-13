@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FiStar, FiInfo, FiShoppingCart } from 'react-icons/fi';
+import { FiStar, FiInfo, FiShoppingCart, FiEye } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import PageLayout from '../components/layout/PageLayout';
 import { facility } from '../components/data/Data';
+import RoomDetailsModal from '../components/RoomDetailsModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './RoomPage.css';
 
@@ -11,24 +12,18 @@ const RoomPage = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
 
   // Helper function to get the correct image URL
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/images/placeholder-room.jpg';
     
     try {
-      // If it's already a full URL
       if (imagePath.startsWith('http')) return imagePath;
-      
-      // Remove any leading slashes
       const cleanPath = imagePath.replace(/^\/+/, '');
-      
-      // If the path includes 'uploads', make sure it's properly formatted
       if (cleanPath.includes('uploads')) {
         return `http://localhost:8080/${cleanPath}`;
       }
-      
-      // For all other cases, assume it's a relative path in the uploads directory
       return `http://localhost:8080/uploads/${cleanPath}`;
     } catch (error) {
       console.error('Error formatting image URL:', error);
@@ -52,12 +47,20 @@ const RoomPage = () => {
     fetchRooms();
   }, []);
 
+  const handleViewDetails = (room) => {
+    setSelectedRoom(room);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedRoom(null);
+  };
+
   return (
     <PageLayout>
-      <div className="container py-4">
-        <div className="text-center mb-4">
-          <h2 className="h4">Our Accommodations</h2>
-          <p className="text-muted small">Experience Luxury and Comfort</p>
+      <div className="rooms-container" style={{marginTop:"-60px"}}>
+        <div className="section-header text-center">
+          <h2 className="section-title">Our Accommodations</h2>
+          <p className="section-subtitle">Experience Luxury and Comfort</p>
         </div>
         
         {error && (
@@ -71,7 +74,7 @@ const RoomPage = () => {
           {loading ? (
             Array(10).fill().map((_, index) => (
               <div key={index} className="card h-100">
-                <div className="card-img-top placeholder-glow" style={{ height: '180px' }}>
+                <div className="card-img-top placeholder-glow" style={{ height: '200px' }}>
                   <div className="placeholder w-100 h-100"></div>
                 </div>
                 <div className="card-body">
@@ -100,7 +103,7 @@ const RoomPage = () => {
                     }}
                   />
                   <div className="position-absolute top-0 end-0 m-2">
-                    <span className="badge bg-dark">
+                    <span className="badge bg-primary">
                       ${room.price}<small>/night</small>
                     </span>
                   </div>
@@ -123,7 +126,7 @@ const RoomPage = () => {
                     {room.description}
                   </p>
                   <div className="mt-auto">
-                    <div className="d-flex flex-wrap gap-1 mb-2">
+                    <div className="d-flex flex-wrap gap-1 mb-3">
                       {facility.map((fac, index) => (
                         <span key={index} className="badge bg-light text-dark small">
                           {fac.icon} {fac.quantity} {fac.facility}
@@ -136,14 +139,15 @@ const RoomPage = () => {
                         className="btn btn-primary btn-sm flex-grow-1"
                       >
                         <FiShoppingCart className="me-1" size={14} />
-                        Book
+                        Book Now
                       </Link>
-                      <Link 
-                        to={`/room-details/${room._id}`} 
-                        className="btn btn-outline-primary btn-sm"
+                      <button 
+                        onClick={() => handleViewDetails(room)}
+                        className="btn btn-outline-primary btn-sm details-btn"
                       >
-                        View
-                      </Link>
+                        <FiEye className="me-1" size={14} />
+                        Details
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -158,6 +162,13 @@ const RoomPage = () => {
             <h3 className="h5">No rooms found</h3>
             <p className="text-muted">Please try again later</p>
           </div>
+        )}
+
+        {selectedRoom && (
+          <RoomDetailsModal 
+            room={selectedRoom} 
+            onClose={handleCloseModal}
+          />
         )}
       </div>
     </PageLayout>

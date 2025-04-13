@@ -11,14 +11,14 @@ export default function About() {
         <div className="content-grid">
           {/* Text Content */}
           <div className="text-content">
-            <h6 className="section-subtitle">About Us</h6>
-            <h1 className="section-title">
+            <span className="section-subtitle">About Us</span>
+            <h2 className="section-title">
               Welcome to <span className="text-accent">HRMS</span>
-            </h1>
+            </h2>
             <p className="description">
               HRMS is a comprehensive platform designed to simplify hotel and
               restaurant management, enabling seamless operations and
-              exceptional customer experiences.
+              exceptional guest experiences.
             </p>
 
             {/* Stats Grid */}
@@ -27,7 +27,7 @@ export default function About() {
                 <div key={index} className="stat-card">
                   <div className="stat-icon">{item.icon}</div>
                   <div className="stat-content">
-                    <h3 className="stat-number">{item.count}</h3>
+                    <div className="stat-number">{item.count}</div>
                     <p className="stat-text">{item.text}</p>
                   </div>
                 </div>
@@ -35,8 +35,8 @@ export default function About() {
             </div>
 
             <Link to="/about" className="cta-button">
-              Explore More
-              <FiArrowUpRight className="cta-icon" />
+              Learn More
+              <FiArrowUpRight className="cta-icon" size={14} />
             </Link>
           </div>
 
@@ -46,7 +46,7 @@ export default function About() {
               <div className="gallery-item main-image">
                 <img
                   src="/assets/img/about-1.jpg"
-                  alt="HRMS interface"
+                  alt="Hotel management system"
                   loading="lazy"
                 />
                 <div className="image-overlay" />
@@ -54,14 +54,14 @@ export default function About() {
               <div className="gallery-item secondary-image">
                 <img
                   src="/assets/img/about-2.jpg"
-                  alt="Analytics dashboard"
+                  alt="Restaurant analytics"
                   loading="lazy"
                 />
               </div>
               <div className="gallery-item tertiary-image">
                 <img
                   src="/assets/img/about-3.jpg"
-                  alt="Mobile app"
+                  alt="Mobile experience"
                   loading="lazy"
                 />
               </div>

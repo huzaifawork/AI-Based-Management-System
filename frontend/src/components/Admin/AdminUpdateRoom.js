@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Form, Button, Spinner, Table } from "react-bootstrap";
+import { Card, Form, Button, Spinner, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -121,19 +121,18 @@ const AdminUpdateRoom = () => {
     }
 
     const submitData = new FormData();
-    submitData.append("roomNumber", formData.roomNumber);
-    submitData.append("roomType", formData.roomType);
-    submitData.append("price", formData.price);
-    submitData.append("status", formData.status);
-    submitData.append("description", formData.description);
-    if (formData.image) {
-      submitData.append("image", formData.image);
-    }
+    Object.keys(formData).forEach(key => {
+      if (key === 'image' && formData[key]) {
+        submitData.append(key, formData[key]);
+      } else if (key !== 'image') {
+        submitData.append(key, formData[key]);
+      }
+    });
 
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:8080/api/rooms/${selectedRoom._id}`,
         submitData,
         {
@@ -177,230 +176,227 @@ const AdminUpdateRoom = () => {
   };
 
   return (
-    <div className="admin-manage-rooms p-4">
-      <h2 className="page-title mb-4">Update Room</h2>
+    <div className="admin-manage-rooms">
+      <Container fluid>
+        <div className="admin-header">
+          <h1 className="admin-title">Update Room</h1>
+          <p className="admin-subtitle">Select a room to update its details</p>
+        </div>
 
-      <div className="row">
-        <div className="col-md-6 mb-4">
-          <Card className="cosmic-card">
-            <Card.Header className="cosmic-card-header">
-              <h5 className="mb-0">Select Room to Update</h5>
-            </Card.Header>
-            <Card.Body className="cosmic-card-body">
-              <Table striped bordered hover responsive className="cosmic-table">
-                <thead>
-                  <tr>
-                    <th>Room Number</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="4" className="text-center p-5">
-                        <Spinner animation="border" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                      </td>
-                    </tr>
-                  ) : rooms.length > 0 ? (
-                    rooms.map((room) => (
-                      <tr key={room._id} className={selectedRoom?._id === room._id ? "table-primary" : ""}>
-                        <td>{room.roomNumber}</td>
-                        <td>{room.roomType}</td>
-                        <td>
-                          <span
-                            className={`badge cosmic-badge ${
-                              room.status === "Available" ? "available" : "unavailable"
-                            }`}
-                          >
+        <Row>
+          <Col lg={6} className="mb-4">
+            <div className="room-grid">
+              {loading ? (
+                <div className="loading-state">
+                  <div className="cosmic-spinner"></div>
+                  <p>Loading rooms...</p>
+                </div>
+              ) : rooms.length > 0 ? (
+                <Row>
+                  {rooms.map((room) => (
+                    <Col key={room._id} md={6} className="mb-4">
+                      <div 
+                        className={`room-card ${selectedRoom?._id === room._id ? 'selected' : ''}`}
+                        onClick={() => handleSelectRoom(room)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="room-card-image">
+                          <img
+                            src={getImageUrl(room.image)}
+                            alt={room.roomNumber}
+                            onError={(e) => {
+                              e.target.src = "/images/placeholder-room.jpg";
+                              e.target.onerror = null;
+                            }}
+                          />
+                          <span className={`room-status ${room.status.toLowerCase()}`}>
                             {room.status}
                           </span>
-                        </td>
-                        <td>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleSelectRoom(room)}
-                          >
-                            Select
-                          </Button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="text-center">
-                        <div className="empty-state">
-                          <div className="empty-state-text">No rooms found</div>
-                          <div className="empty-state-subtext">
-                            Add some rooms to update them
-                          </div>
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </Card.Body>
-          </Card>
-        </div>
-
-        <div className="col-md-6">
-          <Card className="cosmic-card">
-            <Card.Header className="cosmic-card-header">
-              <h5 className="mb-0">Update Room Details</h5>
-            </Card.Header>
-            <Card.Body className="cosmic-card-body">
-              {selectedRoom ? (
-                <Form onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Room Number</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="roomNumber"
-                      value={formData.roomNumber}
-                      onChange={handleInputChange}
-                      placeholder="Enter room number"
-                      required
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Room Type</Form.Label>
-                    <Form.Select
-                      name="roomType"
-                      value={formData.roomType}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Select room type</option>
-                      <option value="Single">Single Room</option>
-                      <option value="Double">Double Room</option>
-                      <option value="Suite">Suite</option>
-                      <option value="Deluxe">Deluxe Room</option>
-                      <option value="Family">Family Room</option>
-                    </Form.Select>
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Price per Night ($)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      placeholder="Enter price per night"
-                      min="0"
-                      step="0.01"
-                      required
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Status</Form.Label>
-                    <Form.Select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="Available">Available</option>
-                      <option value="Occupied">Occupied</option>
-                      <option value="Maintenance">Under Maintenance</option>
-                    </Form.Select>
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      placeholder="Enter room description"
-                      rows={3}
-                      required
-                    />
-                  </Form.Group>
-
-                  <Form.Group className="mb-3">
-                    <Form.Label>Room Image</Form.Label>
-                    {selectedRoom.image && (
-                      <div className="mb-2">
-                        <img
-                          src={getImageUrl(selectedRoom.image)}
-                          alt={selectedRoom.roomNumber}
-                          className="cosmic-room-image"
-                          onError={(e) => {
-                            console.error("Error loading image:", selectedRoom.image);
-                            e.target.src = "/images/placeholder-room.jpg";
-                            e.target.onerror = null;
-                          }}
-                        />
+                        <div className="room-card-content">
+                          <div className="room-card-header">
+                            <h3 className="room-number">Room {room.roomNumber}</h3>
+                            <div className="room-price">${room.price}</div>
+                          </div>
+                          <div className="room-type">{room.roomType}</div>
+                          <p className="room-description">{room.description}</p>
+                        </div>
                       </div>
-                    )}
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                    <Form.Text className="text-muted">
-                      Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
-                    </Form.Text>
-                  </Form.Group>
-
-                  <div className="d-flex gap-2">
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                            className="me-2"
-                          />
-                          Updating Room...
-                        </>
-                      ) : (
-                        "Update Room"
-                      )}
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setSelectedRoom(null);
-                        setFormData({
-                          roomNumber: "",
-                          roomType: "",
-                          price: "",
-                          status: "",
-                          description: "",
-                          image: null,
-                        });
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </Form>
+                    </Col>
+                  ))}
+                </Row>
               ) : (
-                <div className="text-center p-4">
-                  <p className="mb-0">Select a room from the list to update its details</p>
+                <div className="empty-state">
+                  <div className="empty-state-text">No rooms found</div>
+                  <div className="empty-state-subtext">Add some rooms to update them</div>
                 </div>
               )}
-            </Card.Body>
-          </Card>
-        </div>
-      </div>
+            </div>
+          </Col>
+
+          <Col lg={6}>
+            <Card className="room-form-card">
+              <Card.Header className="cosmic-card-header">
+                <h5 className="mb-0">Update Room Details</h5>
+              </Card.Header>
+              <Card.Body>
+                {selectedRoom ? (
+                  <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Room Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="roomNumber"
+                        value={formData.roomNumber}
+                        onChange={handleInputChange}
+                        className="cosmic-input"
+                        placeholder="Enter room number"
+                        required
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>Room Type</Form.Label>
+                      <Form.Select
+                        name="roomType"
+                        value={formData.roomType}
+                        onChange={handleInputChange}
+                        className="cosmic-input"
+                        required
+                      >
+                        <option value="">Select room type</option>
+                        <option value="Single">Single Room</option>
+                        <option value="Double">Double Room</option>
+                        <option value="Suite">Suite</option>
+                        <option value="Deluxe">Deluxe Room</option>
+                        <option value="Family">Family Room</option>
+                      </Form.Select>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>Price per Night ($)</Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        className="cosmic-input"
+                        placeholder="Enter price per night"
+                        min="0"
+                        step="0.01"
+                        required
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>Status</Form.Label>
+                      <Form.Select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleInputChange}
+                        className="cosmic-input"
+                        required
+                      >
+                        <option value="Available">Available</option>
+                        <option value="Occupied">Occupied</option>
+                        <option value="Maintenance">Under Maintenance</option>
+                      </Form.Select>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        className="cosmic-input"
+                        placeholder="Enter room description"
+                        rows={3}
+                        required
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-4">
+                      <Form.Label>Room Image</Form.Label>
+                      <div className="image-upload-container">
+                        {selectedRoom.image && (
+                          <div className="current-image mb-3">
+                            <img
+                              src={getImageUrl(selectedRoom.image)}
+                              alt={selectedRoom.roomNumber}
+                              className="preview-image"
+                              onError={(e) => {
+                                e.target.src = "/images/placeholder-room.jpg";
+                                e.target.onerror = null;
+                              }}
+                            />
+                          </div>
+                        )}
+                        <Form.Control
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="cosmic-input"
+                        />
+                        <Form.Text className="text-muted">
+                          Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
+                        </Form.Text>
+                      </div>
+                    </Form.Group>
+
+                    <div className="d-flex gap-3">
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        className="cosmic-button"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="me-2"
+                            />
+                            Updating Room...
+                          </>
+                        ) : (
+                          "Update Room"
+                        )}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="cosmic-button"
+                        onClick={() => {
+                          setSelectedRoom(null);
+                          setFormData({
+                            roomNumber: "",
+                            roomType: "",
+                            price: "",
+                            status: "",
+                            description: "",
+                            image: null,
+                          });
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </Form>
+                ) : (
+                  <div className="text-center p-4">
+                    <p className="mb-0">Select a room from the list to update its details</p>
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };

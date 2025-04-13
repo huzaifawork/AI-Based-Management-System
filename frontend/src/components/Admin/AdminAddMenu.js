@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Card, Form, Button, Spinner } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "./AdminAddMenu.css";
+import "./AdminManageRooms.css";
 
 const AdminAddMenu = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -51,6 +52,13 @@ const AdminAddMenu = () => {
         ...prev,
         image: file,
       }));
+
+      // Create image preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -63,31 +71,18 @@ const AdminAddMenu = () => {
     }
 
     const submitData = new FormData();
-    submitData.append("name", formData.name);
-    submitData.append("description", formData.description);
-    submitData.append("price", formData.price);
-    submitData.append("category", formData.category);
-    submitData.append("availability", formData.availability);
-    
-    if (formData.image) {
-      submitData.append("image", formData.image);
-    }
+    Object.keys(formData).forEach(key => {
+      if (key === 'image' && formData[key]) {
+        submitData.append(key, formData[key]);
+      } else if (key !== 'image') {
+        submitData.append(key, formData[key]);
+      }
+    });
 
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      console.log("Submitting menu data:", {
-        name: formData.name,
-        description: formData.description,
-        price: formData.price,
-        category: formData.category,
-        availability: formData.availability,
-        hasImage: !!formData.image,
-        imageType: formData.image?.type,
-        imageSize: formData.image?.size
-      });
-
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8080/api/menus",
         submitData,
         {
@@ -98,7 +93,6 @@ const AdminAddMenu = () => {
         }
       );
 
-      console.log("Server response:", response.data);
       toast.success("Menu item added successfully!");
       setFormData({
         name: "",
@@ -108,16 +102,14 @@ const AdminAddMenu = () => {
         availability: true,
         image: null,
       });
+      setImagePreview(null);
       
-      // Reset the file input
       const fileInput = document.querySelector('input[type="file"]');
       if (fileInput) {
         fileInput.value = "";
       }
     } catch (error) {
       console.error("Error adding menu item:", error);
-      console.error("Error response:", error.response?.data);
-      
       if (error.response?.status === 401 || error.response?.status === 403) {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
@@ -125,136 +117,182 @@ const AdminAddMenu = () => {
         navigate("/login");
         return;
       }
-      
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to add menu item";
-      toast.error(errorMessage);
+      toast.error(error.response?.data?.message || "Failed to add menu item");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="admin-manage-menus p-4">
-      <h2 className="page-title mb-4">Add New Menu Item</h2>
+    <div className="admin-manage-rooms">
+      <Container fluid>
+        <div className="admin-header">
+          <h1 className="admin-title">Add Menu Item</h1>
+          <p className="admin-subtitle">Create a new menu item with details and image</p>
+        </div>
 
-      <Card className="cosmic-card">
-        <Card.Header className="cosmic-card-header">
-          <h5 className="mb-0">Menu Item Details</h5>
-        </Card.Header>
-        <Card.Body className="cosmic-card-body">
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3">
-              <Form.Label>Item Name</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter item name"
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Enter item description"
-                rows={3}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Price ($)</Form.Label>
-              <Form.Control
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleInputChange}
-                placeholder="Enter price"
-                min="0"
-                step="0.01"
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Category</Form.Label>
-              <Form.Select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="">Select category</option>
-                <option value="appetizers">Appetizers</option>
-                <option value="main-course">Main Course</option>
-                <option value="desserts">Desserts</option>
-                <option value="beverages">Beverages</option>
-              </Form.Select>
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Check
-                type="switch"
-                name="availability"
-                label="Available"
-                checked={formData.availability}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Item Image</Form.Label>
-              <Form.Control
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
-              <Form.Text className="text-muted">
-                Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
-              </Form.Text>
-            </Form.Group>
-
-            <div className="button-group">
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={loading}
-                className="submit-btn"
-              >
-                {loading ? (
-                  <>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                      className="me-2"
+        <Row>
+          <Col lg={6} className="mb-4">
+            <div className="preview-section">
+              <div className="room-card">
+                <div className="room-card-image">
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Menu item preview"
+                      className="preview-image"
                     />
-                    Adding Item...
-                  </>
-                ) : (
-                  "Add Menu Item"
-                )}
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigate("/admin/view-menus")}
-                className="cancel-btn"
-              >
-                Cancel
-              </Button>
+                  ) : (
+                    <div className="empty-image">
+                      <i className="bi bi-image" style={{ fontSize: '3rem' }}></i>
+                      <p>Upload an image to preview</p>
+                    </div>
+                  )}
+                  <span className={`room-status ${formData.availability ? 'available' : 'unavailable'}`}>
+                    {formData.availability ? 'Available' : 'Unavailable'}
+                  </span>
+                </div>
+                <div className="room-card-content">
+                  <div className="room-card-header">
+                    <h3 className="room-number">{formData.name || 'Item Name'}</h3>
+                    <div className="room-price">${formData.price || '0.00'}</div>
+                  </div>
+                  <div className="room-type">{formData.category || 'Category'}</div>
+                  <p className="room-description">{formData.description || 'Item description will appear here'}</p>
+                </div>
+              </div>
             </div>
-          </Form>
-        </Card.Body>
-      </Card>
+          </Col>
+
+          <Col lg={6}>
+            <div className="room-form-card">
+              <div className="cosmic-card-header">
+                <h5 className="mb-0">Menu Item Details</h5>
+              </div>
+              <div className="p-4">
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Item Name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Enter item name"
+                      className="cosmic-input"
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Enter item description"
+                      className="cosmic-input"
+                      rows={3}
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>Price ($)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      placeholder="Enter price"
+                      className="cosmic-input"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-3">
+                    <Form.Label>Category</Form.Label>
+                    <Form.Select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      className="cosmic-input"
+                      required
+                    >
+                      <option value="">Select category</option>
+                      <option value="appetizers">Appetizers</option>
+                      <option value="main-course">Main Course</option>
+                      <option value="desserts">Desserts</option>
+                      <option value="beverages">Beverages</option>
+                    </Form.Select>
+                  </Form.Group>
+
+                  <Form.Group className="mb-4">
+                    <Form.Label>Availability</Form.Label>
+                    <Form.Check
+                      type="switch"
+                      name="availability"
+                      label="Item is available"
+                      checked={formData.availability}
+                      onChange={handleInputChange}
+                      className="cosmic-switch"
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-4">
+                    <Form.Label>Item Image</Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="cosmic-input"
+                    />
+                    <Form.Text className="text-muted">
+                      Maximum file size: 5MB. Supported formats: JPG, PNG, GIF
+                    </Form.Text>
+                  </Form.Group>
+
+                  <div className="d-flex gap-3">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      className="cosmic-button"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                            className="me-2"
+                          />
+                          Adding Item...
+                        </>
+                      ) : (
+                        "Add Menu Item"
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="cosmic-button"
+                      onClick={() => navigate("/admin/view-menus")}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </Form>
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };

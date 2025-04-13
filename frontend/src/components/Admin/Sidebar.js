@@ -64,26 +64,41 @@ const Dashboard = () => {
       name: "Room Management",
       icon: "bi-building",
       submenu: [
-        { name: "Add Room", component: "AdminAddRoom" },
         { name: "View Rooms", component: "AdminViewRooms" },
+        { name: "Add Room", component: "AdminAddRoom" },
         { name: "Update Room", component: "AdminUpdateRoom" },
         { name: "Delete Room", component: "AdminDeleteRoom" }
       ],
     },
     {
+      name: "Menu Management",
+      icon: "bi-list-check",
+      submenu: [
+        { name: "View Menu", component: "AdminViewMenus" },
+        { name: "Add Menu", component: "AdminAddMenu" },
+        { name: "Update Menu", component: "AdminUpdateMenu" },
+        { name: "Delete Menu", component: "AdminDeleteMenu" }
+      ]
+    },
+    {
       name: "Table Management",
       icon: "bi-grid",
       submenu: [
-        { name: "Add Table", component: "AdminAddTable" },
         { name: "View Tables", component: "AdminViewTables" },
+        { name: "Add Table", component: "AdminAddTable" },
         { name: "Update Table", component: "AdminUpdateTable" },
         { name: "Delete Table", component: "AdminDeleteTable" }
       ],
     },
-    { name: "Manage Bookings", icon: "bi-calendar-check", component: "AdminManageBookings" },
-    { name: "Manage Reservations", icon: "bi-calendar-date", component: "AdminManageReservations" },
-    { name: "Customer Management", icon: "bi-people" },
-    { name: "Online Orders", icon: "bi-cart" },
+    {
+      name: "Order Management",
+      icon: "bi-cart-check",
+      submenu: [
+        { name: "View Orders", component: "AdminOrders", route: "/admin/orders" },
+        { name: "Manage Bookings", component: "AdminManageBookings" },
+        { name: "Manage Reservations", component: "AdminManageReservations" }
+      ]
+    },
     {
       name: "Staff Management",
       icon: "bi-person-badge",
@@ -92,25 +107,17 @@ const Dashboard = () => {
         { name: "Shift Management", component: "ShiftManagement" }
       ]
     },
+    { name: "Customer Management", icon: "bi-people", component: "AdminCustomerManagement" },
     {
-      name: "Menu Management",
-      icon: "bi-list-check",
+      name: "Analytics",
+      icon: "bi-graph-up",
       submenu: [
-        { name: "View Menus", component: "AdminViewMenus" },
-        { name: "Add Menu", component: "AdminAddMenu" },
-        { name: "Update Menu", component: "AdminUpdateMenu" },
-        { name: "Delete Menu", component: "AdminDeleteMenu" }
+        { name: "Reports", component: "ReportingAnalytics" },
+        { name: "Sentiment Analysis", component: "SentimentAnalysis" },
+        { name: "Recommendations", component: "RecommendationSystem" }
       ]
     },
-    { 
-      name: "Sentiment Analysis", 
-      icon: "bi-chat-dots-fill", 
-      component: "SentimentAnalysis" 
-    },
-    { name: "Recommendation System", icon: "bi-stars" },
-    { name: "Reporting", icon: "bi-bar-chart" },
-    { name: "Settings", icon: "bi-gear" },
-    { name: "Order Management", icon: "bi-cart-check", component: "AdminOrders" },
+    { name: "Settings", icon: "bi-gear", component: "AdminSettings" }
   ];
 
   const renderContent = () => {
